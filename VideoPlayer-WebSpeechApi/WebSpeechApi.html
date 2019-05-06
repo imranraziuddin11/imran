@@ -1,0 +1,157 @@
+<html>
+
+<head>
+</head>
+
+<body>
+    <div class="leftBlock">
+        <ul><b>List of Movies Now Playing in Box Office</b>
+            <li>Finding Dory</li>
+            <li>Central Intelligence</li>
+            <li>The Conjuring 2</li>
+            <li>Now You See Me 2</li>
+            <li>Warcraft: The Beginning</li>
+        </ul>
+    </div>
+    <div class="rightBlock">
+
+        <div id="Microphone" >
+            <svg fill="#000000" height="64" viewBox="0 0 24 24" width="64" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 14c1.66 0 2.99-1.34 2.99-3L15 5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm-1.2-9.1c0-.66.54-1.2 1.2-1.2.66 0 1.2.54 1.2 1.2l-.01 6.2c0 .66-.53 1.2-1.19 1.2-.66 0-1.2-.54-1.2-1.2V4.9zm6.5 6.1c0 3-2.54 5.1-5.3 5.1S6.7 14 6.7 11H5c0 3.41 2.72 6.23 6 6.72V21h2v-3.28c3.28-.48 6-3.3 6-6.72h-1.7z" />
+                <path d="M0 0h24v24H0z" fill="none" />
+            </svg>
+            </div>
+            <p>
+                Choose a Movie Name from the list on the left side then click on the Mic and
+                <br>speak out the Movie Name to watch trailer of that particular Movie
+            </p>
+            <p>Ex: Say "Play Central Intelligence" or "Central Intelligence"</p>
+            <iframe width="560" height="315" id="iframe_youtube" src="" frameborder="0" allowfullscreen></iframe>
+            <p id="defaultMessage"></p>
+
+        </div>
+    <style>
+        body {
+            margin: 0px;
+        }
+
+        #iframe_youtube {
+            position: absolute;
+            top: calc(50% - 157px);
+            left: calc(30% - 280px);
+            border: 2px black solid;
+        }
+
+        .leftBLock {
+            position: absolute;
+            left: 0;
+            height: 100%;
+            padding: 10px;
+            width:30%;
+        }
+
+        .rightBlock {
+            position: absolute;
+            padding: 20px;
+            right:0;
+            width: 70%;
+            height:100%;
+        }
+        #Microphone {
+            position:fixed;
+            bottom:10%;
+            right:calc(50% - 20px);
+            cursor:pointer;
+        }
+        div ul {
+            position: relative;
+            top: 20%;
+        }
+
+            div ul li {
+                padding: 5px;
+                color: darkblue;
+            }
+    </style>
+    <script>
+    var mMic = document.getElementById("Microphone");
+    var mIframe = document.getElementById("iframe_youtube");
+    mMic.addEventListener('click', StartButton);
+    var receivedString = "";
+    var movieName = "";
+    var recognizer = new webkitSpeechRecognition();
+    recognizer.lang = "en";
+
+    function StartButton() {
+        recognizer.start();
+        recognizer.onresult = function (event) {
+            if (event.results.length > 0) {
+                var result = event.results[event.results.length - 1];
+                if (result.isFinal) {
+                    receivedString = result[0].transcript;
+                    changeVideo();
+                }
+            }
+        };
+
+    }
+
+    function changeVideo() {
+        document.getElementById("defaultMessage").innerHTML = "";
+        console.log(receivedString);
+        movieName = (receivedString.toLowerCase());
+        movieName = movieName.trim();
+        switch (movieName) { //comparing the received input with the possible cases
+        case 'play finding dory':
+            mIframe.src = "https://www.youtube.com/embed/6VNYvriYcAI?autoplay=1";
+            break;
+        case 'finding dory':
+            mIframe.src = "https://www.youtube.com/embed/6VNYvriYcAI?autoplay=1";
+            break;
+        case 'play the conjuring 2':
+            mIframe.src = "https://www.youtube.com/embed/kTTCi55jpL4?autoplay=1";
+            break;
+        case 'play conjuring 2':
+            mIframe.src = "https://www.youtube.com/embed/kTTCi55jpL4?autoplay=1";
+            break;
+        case 'conjuring 2':
+            mIframe.src = "https://www.youtube.com/embed/kTTCi55jpL4?autoplay=1";
+            break;
+        case 'the conjuring 2':
+            mIframe.src = "https://www.youtube.com/embed/kTTCi55jpL4?autoplay=1";
+            break;
+        case 'play central intelligence':
+            mIframe.src = "https://www.youtube.com/embed/iUMZviyljUI?autoplay=1";
+            break;
+        case 'central intelligence':
+            mIframe.src = "https://www.youtube.com/embed/iUMZviyljUI?autoplay=1";
+            break;
+        case 'play now you see me 2':
+            mIframe.src = "https://www.youtube.com/embed/H1KXFU2Zp0c?autoplay=1";
+            break;
+        case 'now you see me 2':
+            mIframe.src = "https://www.youtube.com/embed/H1KXFU2Zp0c?autoplay=1";
+            break;
+        case 'play warcraft the beginning':
+            mIframe.src = "https://www.youtube.com/embed/WH_AEWxvshE?autoplay=1";
+            break;
+        case 'warcraft the beginning':
+            mIframe.src = "https://www.youtube.com/embed/WH_AEWxvshE?autoplay=1";
+            break;
+        case 'play warcraft':
+            mIframe.src = "https://www.youtube.com/embed/WH_AEWxvshE?autoplay=1";
+            break;
+        case 'warcraft':
+            mIframe.src = "https://www.youtube.com/embed/WH_AEWxvshE?autoplay=1";
+            break;
+        default:
+            document.getElementById("defaultMessage").innerHTML = "Please Try once again. Make sure you choose from the list given on the<br/> left side."
+             break;
+
+        }
+    }
+    </script>
+
+</body>
+
+</html>

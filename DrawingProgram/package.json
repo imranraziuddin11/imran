@@ -1,0 +1,18 @@
+{
+  "name": "drawing_program",
+  "version": "1.0.0",
+  "description": "Drawing program",
+  "main": "app.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "mocha"
+  },
+  "author": "Imran Mohammed",
+  "license": "ISC",
+  "devDependencies": {
+    "chai": "^4.2.0",
+    "mocha": "^5.2.0"
+  }
+}

@@ -1,0 +1,399 @@
+﻿<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title>2048 Game</title>
+    <link href="https://fonts.googleapis.com/css?family=Raleway" rel="stylesheet">
+</head>
+<body>
+    <div id="score">0</div>
+    <div id="output"></div>
+    <div id="reset">Reset</div>
+    <div id="game_over">Game Over!</div>
+    <script>
+        window.onload = function () {
+            document.addEventListener("keydown", game_obj.doc_keypress);
+            document.getElementById("reset").addEventListener("click", game_obj.reset);
+            game_obj.generate_game_arr();
+        };
+
+
+        var game_obj = function () {
+            var score = 0;
+            var prev_score = 0;
+            var game_arr = null;
+            var isGameOver = false;
+
+            var doc_keypress = function (e) {
+                if (!isGameOver) {
+                    if (e.which === 38) { //up
+                        rotate_game_arr();
+                        var prev_game_arr = copy_game_arr(game_arr);
+                        make_move();
+                        if (compare_game_arr(prev_game_arr, game_arr)) {
+                            generate_random_tile();
+                        }
+                        rotate_game_arr();
+                        rotate_game_arr();
+                        rotate_game_arr();
+                    } else if (e.which === 40) { // down
+                        rotate_game_arr();
+                        reverse_game_arr();
+                        var prev_game_arr = copy_game_arr(game_arr);
+                        make_move();
+                        if (compare_game_arr(prev_game_arr, game_arr)) {
+                            generate_random_tile();
+                        }
+                        reverse_game_arr();
+                        rotate_game_arr();
+                        rotate_game_arr();
+                        rotate_game_arr();
+                    } else if (e.which === 37) { // left
+                        var prev_game_arr = copy_game_arr(game_arr);
+                        make_move();
+                        if (compare_game_arr(prev_game_arr, game_arr)) {
+                            generate_random_tile();
+                        }
+                    } else if (e.which === 39) { // right
+                        var prev_game_arr = copy_game_arr(game_arr);
+                        reverse_game_arr();
+                        make_move();
+                        reverse_game_arr();
+                        if (compare_game_arr(prev_game_arr, game_arr)) {
+                            generate_random_tile();
+                        }
+                    }
+                    if (e.which === 37 || e.which === 38 || e.which === 39 || e.which === 40) {
+                        print_game_arr();
+                        if (check_game_over()) {
+                            isGameOver = true;
+                            console.log("game over");
+                            document.getElementById("game_over").style.display = "block";
+                        }
+                        document.getElementById("output").style.opacity = "1";
+                        setTimeout(function () {
+                            document.getElementById("output").style.opacity = "0.95";
+                        }, 300);
+                    }
+                }
+            };
+
+            var make_move = function () {
+                slide();
+                combine();
+                slide();
+            };
+
+            var copy_game_arr = function (game_arr) {
+                var prev_game_arr = [];
+                for (var i = 0 ; i < game_arr.length; i++) {
+                    var temp_prev_game_arr = [];
+                    for (var j = 0; j < game_arr[i].length; j++) {
+                        temp_prev_game_arr.push(game_arr[i][j]);
+                    }
+                    prev_game_arr.push(temp_prev_game_arr);
+                }
+                return prev_game_arr;
+            };
+
+            var compare_game_arr = function (prev_game_arr, game_arr) {
+                for (var i = 0 ; i < game_arr.length; i++) {
+                    for (var j = 0; j < game_arr[i].length; j++) {
+                        if (game_arr[i][j] !== prev_game_arr[i][j]) {
+                            return true;
+                        }
+                    }
+                };
+                return false;
+            };
+
+            var reverse_game_arr = function () {
+                for (var i = 0; i < game_arr.length; i++) {
+                    game_arr[i] = game_arr[i].reverse();
+                }
+            };
+
+            var rotate_game_arr = function () {
+                var temp_arr = [];
+                for (var i = 0; i < game_arr.length; i++) {
+                    var temp_inner_arr = [];
+                    for (var j = 0; j < game_arr[i].length; j++) {
+                        temp_inner_arr.push(game_arr[j][i]);
+                    }
+                    temp_arr.push(temp_inner_arr);
+                }
+                game_arr = temp_arr;
+            };
+
+            var check_game_over = function () {
+                for (var i = 0; i < game_arr.length; i++) {
+                    for (var j = 0; j < game_arr[i].length; j++) {
+                        if (game_arr[i][j] === 0) {
+                            return false;
+                        }
+                        if (i !== game_arr[i].length - 1 && game_arr[i][j] === game_arr[i + 1][j]) {
+                            return false;
+                        }
+                        if (j !== game_arr[i].length - 1 && game_arr[i][j] === game_arr[i][j + 1]) {
+                            return false;
+                        }
+                    }
+                }
+                return true;
+            };
+
+            var generate_game_arr = function () {
+                game_arr = [];
+                for (var i = 0 ; i < 4; i++) {
+                    var temp_inner_arr = [];
+                    for (var j = 0; j < 4; j++) {
+                        temp_inner_arr.push(0);
+                    }
+                    game_arr.push(temp_inner_arr);
+                }
+                for (var i = 0; i < 2; i++) {
+                    generate_random_tile();
+                }
+                print_game_arr();
+            };
+
+            var generate_random_tile = function () {
+                var options = [];
+                for (var i = 0 ; i < game_arr.length; i++) {
+                    for (var j = 0; j < game_arr[i].length; j++) {
+                        if (game_arr[i][j] === 0) {
+                            var temp = {};
+                            temp["x"] = i;
+                            temp["y"] = j;
+                            options.push(temp);
+                        }
+                    }
+                }
+                if (options.length > 0) {
+                    var random_postion = Math.floor(Math.random() * options.length);
+                    game_arr[options[random_postion]["x"]][options[random_postion]["y"]] = Math.random() < 0.9 ? 2 : 4;
+                }
+            };
+
+            var print_game_arr = function () {
+                var output = document.getElementById("output");
+                output.innerHTML = "";
+                var table = document.createElement("table");
+                for (var i = 0; i < game_arr.length; i++) {
+                    var tr = document.createElement("tr");
+                    for (var j = 0; j < game_arr[i].length; j++) {
+                        var td = document.createElement("td");
+                        if (game_arr[i][j] != 0) {
+                            td.dataset.value = game_arr[i][j];
+                            td.textContent = game_arr[i][j];
+                        }
+                        tr.appendChild(td);
+                    }
+                    table.appendChild(tr);
+                }
+                output.appendChild(table);
+                score_animate();
+                //console.table(game_arr);
+            };
+
+            var slide = function () {
+                for (var i = 0; i < game_arr.length; i++) {
+                    var available_values = [];
+                    for (var j = game_arr[i].length - 1; j > -1 ; j--) {
+                        if (game_arr[i][j] != 0) {
+                            available_values.push(game_arr[i][j]);
+                        }
+                    }
+                    if (available_values.length > 0) {
+                        while (available_values.length != game_arr[i].length) {
+                            available_values.push(0);
+                        }
+                        game_arr[i] = available_values;
+                    }
+                }
+            };
+
+            var combine = function () {
+                for (var i = 0; i < game_arr.length; i++) {
+                    for (var j = game_arr[i].length - 1; j > -1; j--) {
+                        var a = game_arr[i][j];
+                        var b = game_arr[i][j - 1];
+                        if (a === b) {
+                            game_arr[i][j] = a + b;
+                            score += a + b;
+                            game_arr[i][j - 1] = 0;
+                        }
+                    }
+                }
+            };
+
+
+            var reset = function () {
+                score = 0;
+                prev_score = 0;
+                game_arr = null;
+                isGameOver = false;
+                document.getElementById("game_over").style.display = "none";
+                generate_game_arr();
+            };
+
+
+            var score_animate = function () {
+                var start = prev_score;
+                var step = (score - prev_score) / 3;
+                setTimeout(function () {
+                    start = start + step;
+                    document.getElementById("score").textContent = Math.round(start);
+                }, 100);
+                setTimeout(function () {
+                    start = start + step;
+                    document.getElementById("score").textContent = Math.round(start);
+                }, 200);
+                setTimeout(function () {
+                    start = start + step;
+                    document.getElementById("score").textContent = Math.round(start);
+                }, 300);
+                prev_score = score;
+            };
+
+
+
+            return {
+                doc_keypress: doc_keypress,
+                generate_game_arr: generate_game_arr,
+                reset: reset
+            }
+        }();
+    </script>
+    <style>
+        body {
+            padding: 1rem;
+            font-family: 'Raleway', sans-serif;
+            color: #000000;
+            background-color: #ffda79;
+        }
+
+        #output {
+            float: left;
+            clear: both;
+            font-size: 2rem;
+            opacity: 0.95;
+            transition: opacity 0.3s;
+        }
+
+            #output table {
+                border-spacing: 5px;
+            }
+
+                #output table tr td {
+                    width: 5rem;
+                    height: 5rem;
+                    vertical-align: middle;
+                    text-align: center;
+                    padding: 1rem;
+                    font-size: 2rem;
+                    color: #ffffff;
+                    background-color: #273c75;
+                    border-radius: 20px;
+                    transition: background-color 0.3s;
+                }
+
+                    #output table tr td[data-value = "2"] {
+                        background-color: #EF5350;
+                        color: #FFFFFF;
+                    }
+
+                    #output table tr td[data-value = "4"] {
+                        background-color: #EC407A;
+                        color: #FFFFFF;
+                    }
+
+                    #output table tr td[data-value = "8"] {
+                        background-color: #7E57C2;
+                        color: #FFFFFF;
+                    }
+
+                    #output table tr td[data-value = "16"] {
+                        background-color: #4b6584;
+                    }
+
+                    #output table tr td[data-value = "32"] {
+                        background-color: #45aaf2;
+                    }
+
+                    #output table tr td[data-value = "64"] {
+                        background-color: #2d98da;
+                    }
+
+                    #output table tr td[data-value = "128"] {
+                        background-color: #3867d6;
+                    }
+
+                    #output table tr td[data-value = "256"] {
+                        background-color: #2bcbba;
+                    }
+
+                    #output table tr td[data-value = "512"] {
+                        background-color: #20bf6b;
+                    }
+
+                    #output table tr td[data-value = "1024"] {
+                        background-color: #fed330;
+                    }
+
+                    #output table tr td[data-value = "2048"] {
+                        background-color: #fa8231;
+                    }
+
+                    #output table tr td[data-value = "4096"] {
+                        background-color: #fc5c65;
+                    }
+
+                    #output table tr td[data-value = "8192"] {
+                        background-color: #eb3b5a;
+                    }
+
+        #score {
+            float: left;
+            clear: both;
+            margin-bottom: 20px;
+            font-size: 5rem;
+        }
+
+        #reset {
+            float: left;
+            clear: both;
+            margin-top: 1.8rem;
+            width: 8rem;
+            padding: 8.5px;
+            box-sizing: border-box;
+            border-radius: 5px;
+            color: #ffffff;
+            text-align: center;
+            background-color: #09469c;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+            #reset:hover {
+                background-color: #074090;
+            }
+
+            #reset:active {
+                background-color: #052c63;
+            }
+
+
+        #game_over {
+            float: left;
+            clear: both;
+            margin-top: 1.8rem;
+            font-size: 2.5rem;
+            color: #000000;
+            display: none;
+        }
+    </style>
+</body>
+</html>
