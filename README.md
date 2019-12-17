@@ -20,7 +20,7 @@ The application uses Google OAuth Sign-in, with Database hosted on MongoDB Atlas
 Hosted Link: [http://node-imran.appspot.com/](http://node-imran.appspot.com/)
 
 # Find A Dane (Web App) CSI518 Team Project 
-This application is a web-based platform for University at Albany student(Danes) to find roommates to live with on/off campus. Often students have preferences when it comes to shared living spaces, preferences like whether the roommate has habits like smoking, drinking etc. With this application we have enabled the Danes to search for appropriate roommate by using the filters and our algorithm will find the right person by looking at right criteria.  
+This application is a web-based platform for University at Albany students (Danes) to find roommates to live with on/off campus. Often students have preferences when it comes to shared living spaces, preferences like whether the roommate has habits like smoking, drinking etc. With this application we have enabled the Danes to search for appropriate roommate by using the filters and our algorithm will find the right person.  
 
 Hosted Link: [http://dane-imran.appspot.com/dashboard.html](http://dane-imran.appspot.com/dashboard.html)
 
