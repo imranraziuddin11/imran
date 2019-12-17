@@ -1,0 +1,2309 @@
+#profile_modal_container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: none;
+}
+
+#profile_modal_blank {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+}
+
+#profile_modal {
+    position: absolute;
+    top: 8rem;
+    left: 4rem;
+    width: calc(100% - 8rem);
+    /* height: calc(100% - 8rem); */
+    border-radius: 10px;
+    background-color: #fff;
+    box-sizing: border-box;
+    z-index: 100000001;
+}
+
+#profile_modal_header {
+    position: relative;
+    float: left;
+    width: 100%;
+    padding: 1rem;
+    box-sizing: border-box;
+    background-color: #48116D;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+}
+
+#profile_modal_picture {
+    float: left;
+    margin-left: calc(50% - 4rem);
+    width: 8rem;
+    height: 8rem;
+    border-radius: 50%;
+    border: 2px solid #edba32;
+}
+
+#profile_modal_picture img {
+    width: 100%;
+    border-radius: 50%;
+}
+
+#profile_modal_name {
+    float: left;
+    width: 100%;
+    font-size: 1.75rem;
+    text-transform: capitalize;
+    color: #edba32;
+    text-align: center;
+    margin-bottom: 2rem;
+    margin-top: 1rem;
+}
+
+#profile_modal_basic_info {
+    position: absolute;
+    top: calc(100% - 2rem);
+    background-color: #ffff;
+    left: 2rem;
+    width: calc(100% - 4rem);
+    box-shadow: 0px 0px 20px #808080;
+    border-radius: 10px;
+    z-index: 100001;
+}
+
+#profile_modal_more_info {
+    position: relative;
+    float: left;
+    width: 100%;
+    padding: 2.25rem;
+    box-sizing: border-box;
+    background-color: #fff;
+    border-bottom-left-radius: 8px;
+    border-bottom-right-radius: 8px;
+    top: 2rem;
+}
+
+#profile_modal_basic_info table {
+    float: left;
+    width: 100%;
+    border-collapse: collapse;
+    border: none
+}
+
+#profile_modal_basic_info table tr td {
+    padding: 10px;
+    text-align: center;
+    vertical-align: middle;
+    border-right: 1px solid #ccc;
+    min-width: 15%;
+}
+
+#profile_modal_basic_info table tr:first td {
+    color: #48116D;
+}
+
+#profile_modal_basic_info table tr td:last-child {
+    border-right: 0px solid #ccc;
+}
+
+.profile_modal_tag {
+    float: left;
+    /* width: 100%; */
+    margin-right: 20px;
+    margin-top: 15px;
+    font-size: 0.8rem;
+    color: #333;
+    border-radius: 5px;
+    box-sizing: border-box;
+}
+
+#profile_modal_edit_button {
+    position: absolute;
+    top: 1rem;
+    right: 2rem;
+    width: 4rem;
+    background-color: #fff;
+    color: #5a297b;
+    text-align: center;
+    padding: 5px;
+    border-radius: 5px;
+    cursor: pointer;
+    display: none;
+}
+
+.profile_modal_tag span:first-child {
+    float: left;
+    background-color: #48116D;
+    color: #edba32;
+    border-top-left-radius: 5px;
+    border-bottom-left-radius: 5px;
+    padding: 7.5px;
+    box-sizing: border-box;
+}
+
+.profile_modal_tag span:last-child {
+    float: left;
+    background-color: #edba32;
+    color: #48116D;
+    border-top-right-radius: 5px;
+    border-bottom-right-radius: 5px;
+    padding: 7.5px;
+    box-sizing: border-box;
+}
+
+#main_dash_body {
+    position: absolute;
+    top: 4rem;
+    left: 0;
+    width: 100%;
+    height: calc(100% - 4rem);
+}
+
+#main_dash_title_bar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 2.65rem;
+    box-sizing: border-box;
+    background-color: #edba32;
+}
+
+#search_title {
+    position: absolute;
+    top: 0.5rem;
+    left: 1rem;
+    font-size: 1.3rem;
+    color: #48116D;
+}
+
+#results_title {
+    position: absolute;
+    top: 0.5rem;
+    left: calc(40% + 1rem);
+    font-size: 1.3rem;
+    color: #48116D;
+}
+
+#main_dash_search_container {
+    position: absolute;
+    left: 0;
+    top: 0rem;
+    width: 40%;
+    height: calc(100% - 0rem);
+    padding: 3.5rem 1.5rem;
+    box-shadow: 0px 0px 20px -10px #808080;
+    background-color: #fff;
+    overflow-x: hidden;
+    box-sizing: border-box;
+    overflow-y: scroll;
+}
+
+#main_dash_results_container {
+    position: absolute;
+    top: 0rem;
+    left: 40%;
+    width: 60%;
+    height: 100%;
+    padding: 3.5rem 0.75rem;
+    /* padding-top: 3.5rem; */
+    background-color: #fafafa;
+    box-sizing: border-box;
+    overflow-x: hidden;
+    overflow-y: scroll;
+}
+
+.profile_card_container {
+    position: relative;
+    float: left;
+    width: calc(50% - 1.5rem);
+    min-width: 21.5rem;
+    padding: 15px;
+    border-radius: 10px;
+    background-color: #fff;
+    margin-right: 0.75rem;
+    margin-left: 0.75rem;
+    margin-bottom: 1.5rem;
+    border: 1px solid #ccc;
+    box-shadow: 0px 0px 8px -2px #808080;
+    box-sizing: border-box;
+    cursor: pointer;
+    transition: box-shadow 0.3s;
+}
+
+.profile_card_container:hover {
+    box-shadow: 0px 0px 0px 0px #808080;
+}
+
+.profile_card_picture {
+    float: left;
+    width: 6rem;
+    margin-right: 15px;
+}
+
+.profile_card_picture img {
+    width: 100%;
+    border-radius: 50%;
+}
+
+.profile_card_details {
+    float: left;
+    width: calc(100% - 0rem);
+    min-width: 19rem;
+    box-sizing: border-box;
+}
+
+.profile_card_name {
+    float: left;
+    width: 100%;
+    font-size: 1.3rem;
+    color: #48116d;
+    box-sizing: border-box;
+}
+
+.profile_card_major {
+    float: left;
+    width: 100%;
+    margin-top: 10px;
+    font-size: 1rem;
+    color: #333;
+    box-sizing: border-box;
+}
+
+.profile_card_nationality {
+    float: left;
+    /* width: 100%; */
+    margin-right: 15px;
+    margin-top: 10px;
+    font-size: 0.8rem;
+    color: #333;
+    border-radius: 5px;
+    box-sizing: border-box;
+}
+
+.profile_card_nationality span:first-child {
+    float: left;
+    background-color: #48116D;
+    color: #edba32;
+    border-top-left-radius: 5px;
+    border-bottom-left-radius: 5px;
+    padding: 5px;
+    box-sizing: border-box;
+}
+
+.profile_card_nationality span:last-child {
+    float: left;
+    background-color: #edba32;
+    color: #48116D;
+    border-top-right-radius: 5px;
+    border-bottom-right-radius: 5px;
+    padding: 5px;
+    box-sizing: border-box;
+}
+
+.profile_card_language {
+    float: left;
+    clear: both;
+    font-size: 0.8rem;
+    color: #333;
+    margin-top: 10px;
+    border-radius: 5px;
+    box-sizing: border-box;
+}
+
+.profile_card_language span:first-child {
+    float: left;
+    background-color: #48116D;
+    color: #edba32;
+    border-top-left-radius: 5px;
+    border-bottom-left-radius: 5px;
+    padding: 5px;
+    box-sizing: border-box;
+}
+
+.profile_card_language span:last-child {
+    float: left;
+    background-color: #edba32;
+    color: #48116D;
+    border-top-right-radius: 5px;
+    border-bottom-right-radius: 5px;
+    padding: 5px;
+    box-sizing: border-box;
+}
+
+.profile_match_container {
+    position: absolute;
+    top: -0.75rem;
+    right: -0.75rem;
+    width: 3.5rem;
+    height: 3.5rem;
+    text-align: center;
+    padding: 15px 2px;
+    border-radius: 50%;
+    background-color: #48116d;
+    color: #fff;
+    box-sizing: border-box;
+    font-size: 1.2rem;
+}
+
+#search_major_container {
+    float: left;
+    position: relative;
+    width: 100%;
+    margin-top: 1.5rem;
+}
+
+#search_nationality_container {
+    float: left;
+    position: relative;
+    width: 100%;
+    margin-top: 1.5rem;
+}
+
+#search_language_container {
+    float: left;
+    position: relative;
+    width: 100%;
+    margin-top: 1.5rem;
+}
+
+#search_graduate_container {
+    float: left;
+    position: relative;
+    width: 100%;
+    margin-top: 1.5rem;
+}
+
+.search_dropdown .global_dropdown_options {
+    max-height: 12rem !important;
+}
+
+#search_rental_period_container {
+    position: relative;
+    float: left;
+    width: 100%;
+    margin-top: 1.5rem;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 1rem;
+    box-sizing: border-box;
+    outline: none;
+}
+
+#search_rental_period_title {
+    float: left;
+    width: calc(25% - 0px);
+    border-top-left-radius: 5px;
+    border-bottom-left-radius: 5px;
+    padding: 6.5px;
+    text-align: center;
+    box-sizing: border-box;
+    border-right: 1px solid #ccc;
+    background-color: #48116D !important;
+    color: #edba32;
+}
+
+#search_rental_period_options div {
+    float: left;
+    width: 25%;
+    text-align: center;
+    border: none;
+    padding: 6.5px 6.5px;
+    border-right: 1px solid #ccc;
+    /* margin-top: 1px; */
+    /* margin-bottom: 1px; */
+    box-sizing: border-box;
+    border-radius: 0px;
+    outline: none;
+    cursor: pointer;
+}
+
+#search_rental_period_options div:hover {
+    opacity: 0.8;
+    background-color: #edba32;
+}
+
+#search_rental_period_options div:last-child {
+    border-right: 0px solid #ccc;
+}
+
+.search_rental_period_selected {
+    background-color: #edba32 !important;
+    color: #48116D;
+}
+
+#search_bedrooms_container {
+    position: relative;
+    float: left;
+    width: 100%;
+    margin-top: 1.5rem;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 1rem;
+    box-sizing: border-box;
+    outline: none;
+}
+
+#search_bedrooms_title {
+    float: left;
+    width: calc(25% - 0px);
+    border-top-left-radius: 5px;
+    border-bottom-left-radius: 5px;
+    padding: 6.5px;
+    text-align: center;
+    box-sizing: border-box;
+    border-right: 1px solid #ccc;
+    background-color: #48116D !important;
+    color: #edba32;
+}
+
+#search_bedrooms_options div {
+    float: left;
+    width: 15%;
+    text-align: center;
+    border: none;
+    padding: 6.5px 6.5px;
+    border-right: 1px solid #ccc;
+    /* margin-top: 1px; */
+    /* margin-bottom: 1px; */
+    box-sizing: border-box;
+    border-radius: 0px;
+    outline: none;
+    cursor: pointer;
+}
+
+#search_bedrooms_options div:hover {
+    opacity: 0.8;
+    background-color: #edba32;
+}
+
+#search_bedrooms_options div:last-child {
+    border-right: 0px solid #ccc;
+}
+
+.search_bedrooms_selected {
+    background-color: #edba32 !important;
+    color: #48116D;
+}
+
+#search_roommates_container {
+    position: relative;
+    float: left;
+    width: 100%;
+    margin-top: 1.5rem;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 1rem;
+    box-sizing: border-box;
+    outline: none;
+}
+
+#search_roommates_title {
+    float: left;
+    width: calc(25% - 0px);
+    border-top-left-radius: 5px;
+    border-bottom-left-radius: 5px;
+    padding: 6.5px;
+    text-align: center;
+    box-sizing: border-box;
+    border-right: 1px solid #ccc;
+    background-color: #48116D !important;
+    color: #edba32;
+}
+
+#search_roommates_options div {
+    float: left;
+    width: 15%;
+    text-align: center;
+    border: none;
+    padding: 6.5px 6.5px;
+    border-right: 1px solid #ccc;
+    /* margin-top: 1px; */
+    /* margin-bottom: 1px; */
+    box-sizing: border-box;
+    border-radius: 0px;
+    outline: none;
+    cursor: pointer;
+}
+
+#search_roommates_options div:hover {
+    opacity: 0.8;
+    background-color: #edba32;
+}
+
+#search_roommates_options div:last-child {
+    border-right: 0px solid #ccc;
+}
+
+.search_roommates_selected {
+    background-color: #edba32 !important;
+    color: #48116D;
+}
+
+#search_gender_container {
+    position: relative;
+    float: left;
+    width: 100%;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 1rem;
+    box-sizing: border-box;
+    outline: none;
+}
+
+#search_gender_title {
+    float: left;
+    width: calc(25% - 0px);
+    border-top-left-radius: 5px;
+    border-bottom-left-radius: 5px;
+    padding: 6.5px;
+    text-align: center;
+    box-sizing: border-box;
+    border-right: 1px solid #ccc;
+    background-color: #48116D !important;
+    color: #edba32;
+}
+
+#search_gender_options div {
+    float: left;
+    width: 25%;
+    text-align: center;
+    border: none;
+    padding: 6.5px 6.5px;
+    border-right: 1px solid #ccc;
+    /* margin-top: 1px; */
+    /* margin-bottom: 1px; */
+    box-sizing: border-box;
+    border-radius: 0px;
+    outline: none;
+    cursor: pointer;
+}
+
+#search_gender_options div:hover {
+    opacity: 0.8;
+    background-color: #edba32;
+}
+
+#search_gender_options div:last-child {
+    border-right: 0px solid #ccc;
+}
+
+.search_gender_selected {
+    background-color: #edba32 !important;
+    color: #48116D;
+}
+
+#center_divider {
+    position: absolute;
+    left: 40%;
+    top: 0rem;
+    height: 100%;
+}
+
+#center_bar {
+    position: absolute;
+    top: 0rem;
+    left: -0.25rem;
+    width: 0.5rem;
+    height: 100%;
+    background-color: #edba32;
+}
+
+#center_title_left {
+    position: absolute;
+    top: 0rem;
+    left: -5.5rem;
+    width: 5.5rem;
+    padding: 10px;
+    padding-left: 0px;
+    background-color: #edba32;
+    box-sizing: border-box;
+}
+
+#center_title_left span {
+    position: relative;
+    float: left;
+}
+
+#center_title_left div {
+    position: absolute;
+    top: 5px;
+    left: -14px;
+    width: 28px;
+    height: 28px;
+    background-color: #edba32;
+    transform: rotate(315deg);
+}
+
+#center_title_right {
+    position: absolute;
+    top: 0rem;
+    left: 0rem;
+    width: 5.5rem;
+    padding: 10px;
+    padding-right: 0px;
+    background-color: #edba32;
+    box-sizing: border-box;
+}
+
+#center_title_right span {
+    position: relative;
+    float: right;
+}
+
+#center_title_right div {
+    position: absolute;
+    top: 5px;
+    left: calc(100% - 14px);
+    width: 28px;
+    height: 28px;
+    background-color: #edba32;
+    transform: rotate(315deg);
+}
+
+#center_search_button {
+    position: absolute;
+    bottom: -5px;
+    left: -5.5rem;
+    width: 11rem;
+    padding: 10px;
+    text-align: center;
+    color: #edba32;
+    background-color: #48116d;
+    box-sizing: border-box;
+    cursor: pointer;
+}
+
+#center_search_button div:first-child {
+    position: absolute;
+    top: 6px;
+    left: -14px;
+    width: 28px;
+    height: 28px;
+    background-color: #48116d;
+    transform: rotate(315deg);
+}
+
+#center_search_button div:last-child {
+    position: absolute;
+    top: 6px;
+    left: calc(100% - 14px);
+    width: 28px;
+    height: 28px;
+    background-color: #48116d;
+    transform: rotate(315deg);
+}
+
+#center_search_button:hover {
+    background-color: #5a297b;
+}
+
+#center_search_button:hover div {
+    background-color: #5a297b;
+}
+
+#search_budget_slider_container {
+    position: relative;
+    float: left;
+    width: 100%;
+    margin-top: 1.5rem;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 1rem;
+    box-sizing: border-box;
+    outline: none;
+}
+
+#search_budget_title {
+    float: left;
+    width: calc(25% - 0px);
+    border-top-left-radius: 5px;
+    border-bottom-left-radius: 5px;
+    padding: 6.5px;
+    text-align: center;
+    box-sizing: border-box;
+    border-right: 1px solid #ccc;
+    background-color: #48116D !important;
+    color: #edba32;
+}
+
+#search_budget_slider {
+    float: left;
+    width: 75%;
+    text-align: center;
+    border: none;
+    padding: 5.5px 6.5px;
+    /* margin-top: 1px; */
+    /* margin-bottom: 1px; */
+    box-sizing: border-box;
+    border-radius: 0px;
+    outline: none;
+    cursor: pointer;
+}
+
+#search_budget_min {
+    float: left;
+    width: 20%;
+    text-align: center;
+}
+
+#search_budget_input_slider {
+    position: absolute;
+    left: 40%;
+    top: 0;
+    width: 45%;
+    padding: 10px;
+    box-sizing: border-box;
+}
+
+#search_budget_max {
+    float: left;
+    margin-left: 60%;
+    width: 20%;
+    text-align: center;
+}
+
+#search_distance_slider_container {
+    position: relative;
+    float: left;
+    width: 100%;
+    margin-top: 1.5rem;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 1rem;
+    box-sizing: border-box;
+    outline: none;
+}
+
+#search_distance_title {
+    float: left;
+    width: calc(25% - 0px);
+    border-top-left-radius: 5px;
+    border-bottom-left-radius: 5px;
+    padding: 6.5px;
+    text-align: center;
+    box-sizing: border-box;
+    border-right: 1px solid #ccc;
+    background-color: #48116D !important;
+    color: #edba32;
+}
+
+#search_distance_slider {
+    float: left;
+    width: 75%;
+    text-align: center;
+    border: none;
+    padding: 5.5px 6.5px;
+    /* margin-top: 1px; */
+    /* margin-bottom: 1px; */
+    box-sizing: border-box;
+    border-radius: 0px;
+    outline: none;
+    cursor: pointer;
+}
+
+#search_distance_min {
+    float: left;
+    width: 20%;
+    text-align: center;
+}
+
+#search_distance_input_slider {
+    position: absolute;
+    left: 40%;
+    top: 0;
+    width: 45%;
+    padding: 10px;
+    box-sizing: border-box;
+}
+
+#search_distance_max {
+    float: left;
+    margin-left: 60%;
+    width: 20%;
+    text-align: center;
+}
+
+input[type="range"] {
+    pointer-events: none;
+    position: absolute;
+    -webkit-appearance: none;
+    -webkit-tap-highlight-color: rgba(255, 255, 255, 0);
+    border: none;
+    border-radius: 14px;
+    background: #F1EFEF;
+    box-shadow: inset 0 1px 0 0 darken(#F1EFEF, 15%), inset 0 -1px 0 0 darken(#F1EFEF, 10%);
+    -webkit-box-shadow: inset 0 1px 0 0 darken(#F1EFEF, 15%), inset 0 -1px 0 0 darken(#F1EFEF, 10%);
+    overflow: hidden;
+    left: 0;
+    top: 6px;
+    width: 100%;
+    outline: none;
+    height: 20px;
+    margin: 0;
+    padding: 0;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+    pointer-events: all;
+    position: relative;
+    z-index: 1;
+    outline: 0;
+    -webkit-appearance: none;
+    width: 20px;
+    height: 20px;
+    border: none;
+    border-radius: 14px;
+    background-color: #48116d;
+}
+
+input[type="range"]::-moz-range-thumb {
+    pointer-events: all;
+    position: relative;
+    z-index: 10;
+    -moz-appearance: none;
+    width: 20px;
+    height: 20px;
+    border: none;
+    border-radius: 14px;
+    background-color: #48116d;
+}
+
+input[type="range"]::-ms-thumb {
+    pointer-events: all;
+    position: relative;
+    z-index: 10;
+    -ms-appearance: none;
+    width: 20px;
+    height: 20px;
+    border-radius: 14px;
+    border: 0;
+    background-image: linear-gradient(to bottom, lighten(#413F41, 60%) 0, #413F41 100%);
+    /* W3C */
+}
+
+input[type=range]::-moz-range-track {
+    position: relative;
+    z-index: -1;
+    background-color: rgba(0, 0, 0, 1);
+    border: 0;
+}
+
+input[type=range]:last-of-type::-moz-range-track {
+    -moz-appearance: none;
+    background: none transparent;
+    border: 0;
+}
+
+input[type=range]::-moz-focus-outer {
+    border: 0;
+}
+
+.search_question_container {
+    float: left;
+    position: relative;
+    width: 100%;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: #fff;
+    margin-top: 1.5rem;
+    border-left: 7.5px solid #48116D;
+    box-sizing: border-box;
+}
+
+.search_question {
+    float: left;
+    padding: 10px;
+    font-size: 1.2rem;
+}
+
+.search_answer_options {
+    float: left;
+    width: 100%;
+}
+
+.search_answer_options div {
+    float: left;
+    width: 50%;
+    padding: 5px 10px;
+    border-right: 1px solid #ccc;
+    cursor: pointer;
+    box-sizing: border-box;
+    border-top: 1px solid #ccc;
+    border-bottom: 1px solid #ccc;
+}
+
+.search_answer_options div:hover {
+    opacity: 0.8;
+    background-color: #edba32;
+}
+
+.search_answer_option_selected {
+    background-color: #edba32 !important;
+    color: #48116D;
+}
+
+#step3_selector {
+    float: left;
+    border-left: 7.5px solid #48116D;
+    box-sizing: border-box;
+}
+
+#step3_selector div {
+    float: left;
+    padding: 5px 10px;
+    border-top: 1px solid #48116D;
+    border-right: 1px solid #ccc;
+    box-sizing: border-box;
+    cursor: pointer;
+}
+
+#step3_selector div:last-child {
+    padding-right: 18px;
+    border-top-right-radius: 50px;
+    border-right: 1px solid #48116D;
+    box-sizing: border-box;
+}
+
+#step3_selector div:hover {
+    opacity: 0.8;
+    background-color: #edba32;
+}
+
+#looking_off_campus_contianer {
+    float: left;
+    position: relative;
+    width: calc(100% - 15px);
+    height: calc(100% - 3.7rem);
+    border: 1px solid #ccc;
+    padding: 10px;
+    box-sizing: border-box;
+    overflow-y: scroll;
+    overflow-x: hidden;
+}
+
+#have_off_campus_container {
+    float: left;
+    position: relative;
+    width: calc(100% - 15px);
+    height: calc(100% - 3.7rem);
+    border: 1px solid #ccc;
+    padding: 10px;
+    box-sizing: border-box;
+    overflow-y: scroll;
+    overflow-x: hidden;
+}
+
+.step3_selector_selected {
+    background-color: #edba32 !important;
+    color: #48116D;
+}
+
+.looking_off_campus_class #looking_off_campus_contianer {
+    display: block;
+}
+
+.looking_off_campus_class #have_off_campus_container {
+    display: none;
+}
+
+.have_off_campus_class #looking_off_campus_contianer {
+    display: none;
+}
+
+.have_off_campus_class #have_off_campus_container {
+    display: block;
+}
+
+#flatpickr_div {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.flatpickr-day.selected,
+.flatpickr-day.startRange,
+.flatpickr-day.endRange,
+.flatpickr-day.selected.inRange,
+.flatpickr-day.startRange.inRange,
+.flatpickr-day.endRange.inRange,
+.flatpickr-day.selected:focus,
+.flatpickr-day.startRange:focus,
+.flatpickr-day.endRange:focus,
+.flatpickr-day.selected:hover,
+.flatpickr-day.startRange:hover,
+.flatpickr-day.endRange:hover,
+.flatpickr-day.selected.prevMonthDay,
+.flatpickr-day.startRange.prevMonthDay,
+.flatpickr-day.endRange.prevMonthDay,
+.flatpickr-day.selected.nextMonthDay,
+.flatpickr-day.startRange.nextMonthDay,
+.flatpickr-day.endRange.nextMonthDay {
+    background: #48116D !important;
+    -webkit-box-shadow: none;
+    box-shadow: none;
+    color: #fff !important;
+    border-color: #48116D !important;
+}
+
+#off_campus_room_preference_container {
+    position: relative;
+    float: left;
+    width: calc(100% - 0px);
+    margin-bottom: 10px;
+    margin-top: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 1rem;
+    box-sizing: border-box;
+    outline: none;
+}
+
+#off_campus_room_preference_title {
+    float: left;
+    width: calc(25% - 0px);
+    border-top-left-radius: 5px;
+    border-bottom-left-radius: 5px;
+    padding: 6.5px;
+    text-align: center;
+    box-sizing: border-box;
+    border-right: 1px solid #ccc;
+    background-color: #48116D !important;
+    color: #edba32;
+}
+
+#off_campus_room_preference_options div {
+    float: left;
+    width: 37.5%;
+    text-align: center;
+    border: none;
+    padding: 6.5px 6.5px;
+    border-right: 1px solid #ccc;
+    /* margin-top: 1px; */
+    /* margin-bottom: 1px; */
+    box-sizing: border-box;
+    border-radius: 0px;
+    outline: none;
+    cursor: pointer;
+}
+
+#off_campus_room_preference_options div:hover {
+    opacity: 0.8;
+    background-color: #edba32;
+}
+
+#off_campus_room_preference_options div:last-child {
+    border-right: 0px solid #ccc;
+}
+
+.off_campus_room_preference_selected {
+    background-color: #edba32 !important;
+    color: #48116D;
+}
+
+#off_campus_gender_container {
+    position: relative;
+    float: left;
+    width: calc(100% - 0px);
+    margin-bottom: 20px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 1rem;
+    box-sizing: border-box;
+    outline: none;
+}
+
+#off_campus_gender_title {
+    float: left;
+    width: calc(25% - 0px);
+    border-top-left-radius: 5px;
+    border-bottom-left-radius: 5px;
+    padding: 6.5px;
+    text-align: center;
+    box-sizing: border-box;
+    border-right: 1px solid #ccc;
+    background-color: #48116D !important;
+    color: #edba32;
+}
+
+#off_campus_gender_options div {
+    float: left;
+    width: 25%;
+    text-align: center;
+    border: none;
+    padding: 6.5px 6.5px;
+    border-right: 1px solid #ccc;
+    /* margin-top: 1px; */
+    /* margin-bottom: 1px; */
+    box-sizing: border-box;
+    border-radius: 0px;
+    outline: none;
+    cursor: pointer;
+}
+
+#off_campus_gender_options div:hover {
+    opacity: 0.8;
+    background-color: #edba32;
+}
+
+#off_campus_gender_options div:last-child {
+    border-right: 0px solid #ccc;
+}
+
+.off_campus_gender_selected {
+    background-color: #edba32 !important;
+    color: #48116D;
+}
+
+#off_campus_budget_container {
+    position: relative;
+    float: left;
+    width: calc(100% - 0px);
+    margin-top: 10px;
+    margin-bottom: 20px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 1rem;
+    box-sizing: border-box;
+    outline: none;
+}
+
+#off_campus_budget_title {
+    float: left;
+    width: calc(25% - 0px);
+    border-top-left-radius: 5px;
+    border-bottom-left-radius: 5px;
+    padding: 6.5px;
+    text-align: center;
+    box-sizing: border-box;
+    border-right: 1px solid #ccc;
+    background-color: #48116D !important;
+    color: #edba32;
+}
+
+#off_campus_budget_slider {
+    float: left;
+    width: 75%;
+    text-align: center;
+    border: none;
+    padding: 5.5px 6.5px;
+    /* margin-top: 1px; */
+    /* margin-bottom: 1px; */
+    box-sizing: border-box;
+    border-radius: 0px;
+    outline: none;
+    cursor: pointer;
+}
+
+#off_campus_budget_min {
+    float: left;
+    width: 20%;
+    text-align: center;
+}
+
+#off_campus_budget_input_slider {
+    position: absolute;
+    left: 40%;
+    top: 0;
+    width: 45%;
+    padding: 10px;
+    box-sizing: border-box;
+}
+
+#off_campus_budget_max {
+    float: left;
+    margin-left: 60%;
+    width: 20%;
+    text-align: center;
+}
+
+#off_campus_distance_container {
+    position: relative;
+    float: left;
+    width: calc(100% - 0px);
+    margin-bottom: 20px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 1rem;
+    box-sizing: border-box;
+    outline: none;
+}
+
+#off_campus_distance_title {
+    float: left;
+    width: calc(25% - 0px);
+    border-top-left-radius: 5px;
+    border-bottom-left-radius: 5px;
+    padding: 6.5px;
+    text-align: center;
+    box-sizing: border-box;
+    border-right: 1px solid #ccc;
+    background-color: #48116D !important;
+    color: #edba32;
+}
+
+#off_campus_distance {
+    float: left;
+    width: calc(75% - 5px);
+    text-align: center;
+    border: none;
+    padding: 5.5px 6.5px;
+    margin-top: 1px;
+    margin-bottom: 1px;
+    box-sizing: border-box;
+    border-radius: 5px;
+    outline: none
+}
+
+#off_campus_roommates_container {
+    position: relative;
+    float: left;
+    width: calc(100% - 0px);
+    margin-bottom: 20px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 1rem;
+    box-sizing: border-box;
+    outline: none;
+}
+
+#off_campus_roommates_title {
+    float: left;
+    width: calc(25% - 0px);
+    border-top-left-radius: 5px;
+    border-bottom-left-radius: 5px;
+    padding: 6.5px;
+    text-align: center;
+    box-sizing: border-box;
+    border-right: 1px solid #ccc;
+    background-color: #48116D !important;
+    color: #edba32;
+}
+
+#off_campus_roommates_options div {
+    float: left;
+    width: 15%;
+    text-align: center;
+    border: none;
+    padding: 6.5px 6.5px;
+    border-right: 1px solid #ccc;
+    /* margin-top: 1px; */
+    /* margin-bottom: 1px; */
+    box-sizing: border-box;
+    border-radius: 0px;
+    outline: none;
+    cursor: pointer;
+}
+
+#off_campus_roommates_options div:hover {
+    opacity: 0.8;
+    background-color: #edba32;
+}
+
+#off_campus_roommates_options div:last-child {
+    border-right: 0px solid #ccc;
+}
+
+.off_campus_roommates_selected {
+    background-color: #edba32 !important;
+    color: #48116D;
+}
+
+#off_campus_bedrooms_container {
+    position: relative;
+    float: left;
+    width: calc(100% - 0px);
+    margin-bottom: 20px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 1rem;
+    box-sizing: border-box;
+    outline: none;
+}
+
+#off_campus_bedrooms_title {
+    float: left;
+    width: calc(25% - 0px);
+    border-top-left-radius: 5px;
+    border-bottom-left-radius: 5px;
+    padding: 6.5px;
+    text-align: center;
+    box-sizing: border-box;
+    border-right: 1px solid #ccc;
+    background-color: #48116D !important;
+    color: #edba32;
+}
+
+#off_campus_bedrooms_options div {
+    float: left;
+    width: 15%;
+    text-align: center;
+    border: none;
+    padding: 6.5px 6.5px;
+    border-right: 1px solid #ccc;
+    /* margin-top: 1px; */
+    /* margin-bottom: 1px; */
+    box-sizing: border-box;
+    border-radius: 0px;
+    outline: none;
+    cursor: pointer;
+}
+
+#off_campus_bedrooms_options div:hover {
+    opacity: 0.8;
+    background-color: #edba32;
+}
+
+#off_campus_bedrooms_options div:last-child {
+    border-right: 0px solid #ccc;
+}
+
+.off_campus_bedrooms_selected {
+    background-color: #edba32 !important;
+    color: #48116D;
+}
+
+#off_campus_start_date_container {
+    position: relative;
+    float: left;
+    width: 100%;
+    margin-bottom: 20px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 1rem;
+    box-sizing: border-box;
+    outline: none;
+}
+
+#off_campus_start_date_title {
+    float: left;
+    width: calc(25% - 0px);
+    border-top-left-radius: 5px;
+    border-bottom-left-radius: 5px;
+    padding: 6.5px;
+    text-align: center;
+    box-sizing: border-box;
+    background-color: #48116D !important;
+    color: #edba32;
+}
+
+#off_campus_start_date_container input {
+    float: left;
+    width: 25%;
+    text-align: center;
+    border: none;
+    border-left: 1px solid #ccc;
+    padding: 5.5px 6.5px;
+    margin-top: 1px;
+    margin-bottom: 1px;
+    box-sizing: border-box;
+    border-radius: 0px;
+}
+
+#off_campus_start_date_year {
+    width: calc(25% - 1px) !important;
+}
+
+#flatpickr_div2 {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.flatpickr-calendar {
+    z-index: 1000000 !important;
+}
+
+#off_campus_rental_period_container {
+    position: relative;
+    float: left;
+    width: calc(100% - 0px);
+    margin-bottom: 20px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 1rem;
+    box-sizing: border-box;
+    outline: none;
+}
+
+#off_campus_rental_period_title {
+    float: left;
+    width: calc(25% - 0px);
+    border-top-left-radius: 5px;
+    border-bottom-left-radius: 5px;
+    padding: 6.5px;
+    text-align: center;
+    box-sizing: border-box;
+    border-right: 1px solid #ccc;
+    background-color: #48116D !important;
+    color: #edba32;
+}
+
+#off_campus_rental_period_options div {
+    float: left;
+    width: 25%;
+    text-align: center;
+    border: none;
+    padding: 6.5px 6.5px;
+    border-right: 1px solid #ccc;
+    /* margin-top: 1px; */
+    /* margin-bottom: 1px; */
+    box-sizing: border-box;
+    border-radius: 0px;
+    outline: none;
+    cursor: pointer;
+}
+
+#off_campus_rental_period_options div:hover {
+    opacity: 0.8;
+    background-color: #edba32;
+}
+
+#off_campus_rental_period_options div:last-child {
+    border-right: 0px solid #ccc;
+}
+
+.off_campus_rental_period_selected {
+    background-color: #edba32 !important;
+    color: #48116D;
+}
+
+#have_off_campus_rent_container {
+    position: relative;
+    float: left;
+    width: calc(100% - 0px);
+    margin-top: 10px;
+    margin-bottom: 20px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 1rem;
+    box-sizing: border-box;
+    outline: none;
+}
+
+#have_off_campus_rent_title {
+    float: left;
+    width: calc(25% - 0px);
+    border-top-left-radius: 5px;
+    border-bottom-left-radius: 5px;
+    padding: 6.5px;
+    text-align: center;
+    box-sizing: border-box;
+    border-right: 1px solid #ccc;
+    background-color: #48116D !important;
+    color: #edba32;
+}
+
+#have_off_campus_rent {
+    float: left;
+    width: calc(75% - 5px);
+    text-align: center;
+    border: none;
+    padding: 5.5px 6.5px;
+    margin-top: 1px;
+    margin-bottom: 1px;
+    box-sizing: border-box;
+    border-radius: 5px;
+    outline: none
+}
+
+#have_off_campus_utility_bill_container {
+    position: relative;
+    float: left;
+    width: calc(100% - 0px);
+    margin-bottom: 20px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 1rem;
+    box-sizing: border-box;
+    outline: none;
+}
+
+#have_off_campus_utility_bill_title {
+    float: left;
+    width: calc(25% - 0px);
+    border-top-left-radius: 5px;
+    border-bottom-left-radius: 5px;
+    padding: 6.5px;
+    text-align: center;
+    box-sizing: border-box;
+    border-right: 1px solid #ccc;
+    background-color: #48116D !important;
+    color: #edba32;
+}
+
+#have_off_campus_utility_bill {
+    float: left;
+    width: calc(75% - 5px);
+    text-align: center;
+    border: none;
+    padding: 5.5px 6.5px;
+    margin-top: 1px;
+    margin-bottom: 1px;
+    box-sizing: border-box;
+    border-radius: 5px;
+    outline: none
+}
+
+#have_off_campus_distance_container {
+    position: relative;
+    float: left;
+    width: calc(100% - 0px);
+    margin-bottom: 20px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 1rem;
+    box-sizing: border-box;
+    outline: none;
+}
+
+#have_off_campus_distance_title {
+    float: left;
+    width: calc(25% - 0px);
+    border-top-left-radius: 5px;
+    border-bottom-left-radius: 5px;
+    padding: 6.5px;
+    text-align: center;
+    box-sizing: border-box;
+    border-right: 1px solid #ccc;
+    background-color: #48116D !important;
+    color: #edba32;
+}
+
+#have_off_campus_distance {
+    float: left;
+    width: calc(75% - 5px);
+    text-align: center;
+    border: none;
+    padding: 5.5px 6.5px;
+    margin-top: 1px;
+    margin-bottom: 1px;
+    box-sizing: border-box;
+    border-radius: 5px;
+    outline: none
+}
+
+#have_off_campus_rental_period_container {
+    position: relative;
+    float: left;
+    width: calc(100% - 0px);
+    margin-bottom: 20px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 1rem;
+    box-sizing: border-box;
+    outline: none;
+}
+
+#have_off_campus_rental_period_title {
+    float: left;
+    width: calc(25% - 0px);
+    border-top-left-radius: 5px;
+    border-bottom-left-radius: 5px;
+    padding: 6.5px;
+    text-align: center;
+    box-sizing: border-box;
+    border-right: 1px solid #ccc;
+    background-color: #48116D !important;
+    color: #edba32;
+}
+
+#have_off_campus_rental_period_options div {
+    float: left;
+    width: 25%;
+    text-align: center;
+    border: none;
+    padding: 6.5px 6.5px;
+    border-right: 1px solid #ccc;
+    /* margin-top: 1px; */
+    /* margin-bottom: 1px; */
+    box-sizing: border-box;
+    border-radius: 0px;
+    outline: none;
+    cursor: pointer;
+}
+
+#have_off_campus_rental_period_options div:hover {
+    opacity: 0.8;
+    background-color: #edba32;
+}
+
+#have_off_campus_rental_period_options div:last-child {
+    border-right: 0px solid #ccc;
+}
+
+.have_off_campus_rental_period_selected {
+    background-color: #edba32 !important;
+    color: #48116D;
+}
+
+#have_off_campus_bedrooms_container {
+    position: relative;
+    float: left;
+    width: calc(100% - 0px);
+    margin-bottom: 20px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 1rem;
+    box-sizing: border-box;
+    outline: none;
+}
+
+#have_off_campus_bedrooms_title {
+    float: left;
+    width: calc(25% - 0px);
+    border-top-left-radius: 5px;
+    border-bottom-left-radius: 5px;
+    padding: 6.5px;
+    text-align: center;
+    box-sizing: border-box;
+    border-right: 1px solid #ccc;
+    background-color: #48116D !important;
+    color: #edba32;
+}
+
+#have_off_campus_bedrooms_options div {
+    float: left;
+    width: 15%;
+    text-align: center;
+    border: none;
+    padding: 6.5px 6.5px;
+    border-right: 1px solid #ccc;
+    /* margin-top: 1px; */
+    /* margin-bottom: 1px; */
+    box-sizing: border-box;
+    border-radius: 0px;
+    outline: none;
+    cursor: pointer;
+}
+
+#have_off_campus_bedrooms_options div:hover {
+    opacity: 0.8;
+    background-color: #edba32;
+}
+
+#have_off_campus_bedrooms_options div:last-child {
+    border-right: 0px solid #ccc;
+}
+
+.have_off_campus_bedrooms_selected {
+    background-color: #edba32 !important;
+    color: #48116D;
+}
+
+#have_off_campus_roommates_container {
+    position: relative;
+    float: left;
+    width: calc(100% - 0px);
+    margin-bottom: 20px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 1rem;
+    box-sizing: border-box;
+    outline: none;
+}
+
+#have_off_campus_roommates_title {
+    float: left;
+    width: calc(25% - 0px);
+    border-top-left-radius: 5px;
+    border-bottom-left-radius: 5px;
+    padding: 6.5px;
+    text-align: center;
+    box-sizing: border-box;
+    border-right: 1px solid #ccc;
+    background-color: #48116D !important;
+    color: #edba32;
+}
+
+#have_off_campus_roommates_options div {
+    float: left;
+    width: 15%;
+    text-align: center;
+    border: none;
+    padding: 6.5px 6.5px;
+    border-right: 1px solid #ccc;
+    /* margin-top: 1px; */
+    /* margin-bottom: 1px; */
+    box-sizing: border-box;
+    border-radius: 0px;
+    outline: none;
+    cursor: pointer;
+}
+
+#have_off_campus_roommates_options div:hover {
+    opacity: 0.8;
+    background-color: #edba32;
+}
+
+#have_off_campus_roommates_options div:last-child {
+    border-right: 0px solid #ccc;
+}
+
+.have_off_campus_roommates_selected {
+    background-color: #edba32 !important;
+    color: #48116D;
+}
+
+#have_off_campus_gender_container {
+    position: relative;
+    float: left;
+    width: calc(100% - 0px);
+    margin-bottom: 20px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 1rem;
+    box-sizing: border-box;
+    outline: none;
+}
+
+#have_off_campus_gender_title {
+    float: left;
+    width: calc(25% - 0px);
+    border-top-left-radius: 5px;
+    border-bottom-left-radius: 5px;
+    padding: 6.5px;
+    text-align: center;
+    box-sizing: border-box;
+    border-right: 1px solid #ccc;
+    background-color: #48116D !important;
+    color: #edba32;
+}
+
+#have_off_campus_gender_options div {
+    float: left;
+    width: 25%;
+    text-align: center;
+    border: none;
+    padding: 6.5px 6.5px;
+    border-right: 1px solid #ccc;
+    /* margin-top: 1px; */
+    /* margin-bottom: 1px; */
+    box-sizing: border-box;
+    border-radius: 0px;
+    outline: none;
+    cursor: pointer;
+}
+
+#have_off_campus_gender_options div:hover {
+    opacity: 0.8;
+    background-color: #edba32;
+}
+
+#have_off_campus_gender_options div:last-child {
+    border-right: 0px solid #ccc;
+}
+
+.have_off_campus_gender_selected {
+    background-color: #edba32 !important;
+    color: #48116D;
+}
+
+body {
+    font-family: 'Raleway', sans-serif;
+    padding: 0px;
+    margin: 0px;
+    overflow: hidden;
+}
+
+#main_dash_search_container::-webkit-scrollbar {
+    width: 0px;
+}
+
+
+/* Track */
+
+#main_dash_search_container::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 0px;
+}
+
+
+/* Handle */
+
+#main_dash_search_container::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 0px;
+}
+
+
+/* Handle on hover */
+
+ ::-webkit-scrollbar {
+    width: 7.5px;
+}
+
+
+/* Track */
+
+ ::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+}
+
+
+/* Handle */
+
+ ::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 10px;
+}
+
+
+/* Handle on hover */
+
+ ::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+
+div {
+    outline: none;
+}
+
+input,
+textarea {
+    font-family: 'Raleway', sans-serif;
+}
+
+#navigation_bar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 4rem;
+    background-color: #48116D;
+    box-shadow: 0px 0px 8px #808080;
+}
+
+#fad_logo {
+    position: absolute;
+    top: 0.4rem;
+    left: 0.5rem;
+    width: 14rem;
+}
+
+#fad_logo img {
+    width: 100%;
+}
+
+#nav_profile {
+    position: absolute;
+    right: 1rem;
+    top: 0.5rem;
+    color: #ffffff;
+    font-size: 1.2rem;
+    cursor: pointer;
+}
+
+#nav_profile_name {
+    float: left;
+    margin-top: 0.75rem;
+    margin-right: 10px;
+}
+
+#nav_profile_picture {
+    float: left;
+    width: 2.5rem;
+    margin-top: 0.25rem;
+}
+
+#nav_profile_picture img {
+    width: 100%;
+    border-radius: 50%;
+}
+
+#model_parent_container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: none;
+}
+
+#blank_model {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+}
+
+#model_container {
+    position: absolute;
+    top: 4rem;
+    left: 4rem;
+    width: calc(100% - 8rem);
+    height: calc(100% - 8rem);
+    border-radius: 10px;
+    background-color: #fff;
+    padding: 2rem;
+    box-sizing: border-box;
+    z-index: 100001;
+}
+
+#model_title {
+    float: left;
+    width: 100%;
+    font-size: 1.5rem;
+    color: #333;
+}
+
+#progress_bar {
+    float: left;
+    width: 100%;
+    margin-top: 10px;
+}
+
+.progress_bar {
+    float: left;
+    width: 32%;
+    padding: 2px 0px;
+    border-radius: 50px;
+    background-color: #eee;
+    border: 1px solid #ccc;
+    text-align: center;
+    color: #333;
+    box-sizing: border-box;
+    overflow: hidden;
+}
+
+.progress_bar:nth-child(1) {
+    margin-right: 2%;
+}
+
+.progress_bar:nth-child(2) {
+    margin-right: 2%;
+}
+
+.progress_bar.filled_box {
+    color: #fff;
+    background-color: rgba(72, 17, 109, 1);
+    border: 1px solid #48116D;
+    box-sizing: border-box;
+}
+
+#steps_container {
+    position: relative;
+    top: 1rem;
+    left: 0rem;
+    margin-bottom: 1rem;
+    width: calc(100% - 0rem);
+    height: calc(100% - 6rem);
+}
+
+#step1_container {
+    position: relative;
+    top: 0rem;
+    left: 0rem;
+    width: 100%;
+    height: 100%;
+    overflow-y: scroll;
+    overflow-x: hidden;
+}
+
+#step2_container {
+    position: relative;
+    top: 0rem;
+    left: 0rem;
+    width: 100%;
+    height: 100%;
+    overflow-y: scroll;
+    overflow-x: hidden;
+}
+
+#step3_container {
+    position: relative;
+    top: 0rem;
+    left: 0rem;
+    width: 100%;
+    height: 100%;
+}
+
+#previous_step {
+    position: relative;
+    float: right;
+    top: 3.5rem;
+    margin-right: 1rem;
+    width: 8rem;
+    border-radius: 5px;
+    box-sizing: border-box;
+    text-align: center;
+    font-size: 1rem;
+    background-color: #48116D;
+    color: #edba32;
+    cursor: pointer;
+    padding: 5px;
+    display: none;
+}
+
+#previous_step:hover {
+    opacity: 0.9;
+}
+
+#submit_step {
+    position: relative;
+    float: right;
+    top: 3.5rem;
+    width: 8rem;
+    border-radius: 5px;
+    box-sizing: border-box;
+    text-align: center;
+    font-size: 1rem;
+    background-color: #48116D;
+    color: #edba32;
+    cursor: pointer;
+    padding: 5px;
+}
+
+#submit_step:hover {
+    opacity: 0.9;
+}
+
+#profile_picture_container {
+    float: left;
+    width: 12rem;
+    height: 14rem;
+    margin-top: 5rem;
+    margin-left: 5rem;
+    background-color: #eee;
+    border-radius: 15px;
+}
+
+#profile_picture_container img {
+    float: left;
+    clear: both;
+    padding: 0rem;
+    width: 100%;
+    border-top-left-radius: 15px;
+    border-top-right-radius: 15px;
+}
+
+#upload_picture_button {
+    float: left;
+    clear: both;
+    width: 100%;
+    outline: none;
+}
+
+#upload_picture_button::-webkit-file-upload-button {
+    visibility: hidden;
+}
+
+#upload_picture_button::before {
+    content: 'UPLOAD PICTURE';
+    display: inline-block;
+    background: #48116D;
+    border: 1px solid #48116D;
+    color: #edba32;
+    padding: 8px 8px;
+    border-bottom-left-radius: 15px;
+    border-bottom-right-radius: 15px;
+    outline: none;
+    white-space: nowrap;
+    -webkit-user-select: none;
+    cursor: pointer;
+    font-size: 1rem;
+    text-align: center;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+#upload_picture_button:hover::before {
+    opacity: 0.9;
+}
+
+#upload_picture_button:active::before {
+    opacity: 1;
+}
+
+.global_dropdown {
+    float: left;
+    position: relative;
+    border: 1px solid #ccc;
+    padding: 6.5px 8.5px 6.5px 8.5px;
+    border-radius: 5px;
+    font-size: 1rem;
+    color: #030303;
+    font-family: 'Raleway', sans-serif;
+    box-sizing: border-box;
+    outline: none;
+    cursor: pointer;
+}
+
+.global_dropdown:hover .global_dropdown_options {
+    display: block !important;
+    z-index: 1001;
+}
+
+.global_dropdown_title {
+    position: absolute;
+    top: -7.5px !important;
+    left: 5px !important;
+    padding: 0px 4px !important;
+    font-size: 11px !important;
+    color: #999999;
+    background-color: #ffffff;
+    opacity: 1 !important;
+}
+
+.global_dropdown_options {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    max-height: 6rem;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    border-top-left-radius: 0px;
+    border-top-right-radius: 0px;
+    width: 100%;
+    overflow-y: scroll;
+    overflow-x: hidden;
+    box-sizing: border-box;
+    display: none;
+    background-color: #fff;
+}
+
+.global_dropdown_option {
+    float: left;
+    clear: both;
+    width: 100%;
+    padding: 5px 10px;
+    box-sizing: border-box;
+    border-bottom: 1px solid #ccc;
+    cursor: pointer;
+}
+
+.global_dropdown_option:hover {
+    background-color: #edba32;
+    color: #48116D;
+}
+
+.global_dropdown_value_container {
+    float: left;
+    width: 100%;
+}
+
+#nationality_container {
+    position: absolute;
+    top: 5.5rem;
+    left: 19rem;
+    width: 40rem;
+}
+
+#language_container {
+    position: absolute;
+    top: 9.5rem;
+    left: 19rem;
+    width: 40rem;
+}
+
+#graduate_container {
+    position: absolute;
+    top: 13.5rem;
+    left: 19rem;
+    width: 40rem;
+}
+
+#major_container {
+    position: absolute;
+    top: 17.5rem;
+    left: 19rem;
+    width: 40rem;
+}
+
+.step1_class #step1_container {
+    display: block;
+}
+
+.step1_class #step2_container {
+    display: none;
+}
+
+.step1_class #step3_container {
+    display: none;
+}
+
+.step2_class #step1_container {
+    display: none;
+}
+
+.step2_class #step2_container {
+    display: block;
+}
+
+.step2_class #step3_container {
+    display: none;
+}
+
+.step3_class #step1_container {
+    display: none;
+}
+
+.step3_class #step2_container {
+    display: none;
+}
+
+.step3_class #step3_container {
+    display: block;
+}
+
+.step2_question_container {
+    float: left;
+    position: relative;
+    width: calc(100% - 15px);
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: #fff;
+    margin-bottom: 2rem;
+    border-left: 7.5px solid #48116D;
+    box-sizing: border-box;
+}
+
+.step2_question {
+    float: left;
+    padding: 10px;
+    font-size: 1.2rem;
+}
+
+.step2_answer_options {
+    float: left;
+    width: 100%;
+}
+
+.step2_answer_options div {
+    float: left;
+    padding: 5px 10px;
+    border-right: 1px solid #ccc;
+    cursor: pointer;
+    border-top: 1px solid #48116D;
+}
+
+.step2_answer_options div:last-child {
+    padding-right: 18px;
+    border-top-right-radius: 50px;
+    border-right: 1px solid #48116D;
+}
+
+.step2_answer_options div:hover {
+    opacity: 0.8;
+    background-color: #edba32;
+}
+
+.step2_answer_option_selected {
+    background-color: #edba32 !important;
+    color: #48116D;
+}

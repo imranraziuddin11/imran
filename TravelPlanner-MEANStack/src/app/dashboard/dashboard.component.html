@@ -51,7 +51,7 @@
         <div id="results_container">
             {{errorHotelMessage}}
             <div *ngFor="let hotel of hotels; let i = index" class="flight_result_card">
-                <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=200&photoreference={{hotel.photos[0].photo_reference}}&key=AIzaSyBwzXINKC7HTfJ4Msq9xMT0ssgsMX0sbPU" alt="hotel_photo" />
+                <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=200&photoreference={{hotel.photos[0].photo_reference}}&key=123" alt="hotel_photo" />
                 <div><span>Name: </span><span>{{hotel.name}}</span></div>
                 <div><span>Address: </span><span>{{hotel.formatted_address}}</span></div>
                 <div><span>Rating: </span><span>{{hotel.rating}} / 5.0</span></div>

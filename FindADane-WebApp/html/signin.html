@@ -1,0 +1,262 @@
+﻿<!--191116A-->
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+    <meta name="viewport" content="initial-scale=1.0">
+    <meta charset="utf-8">
+    <title>Find A Dane - SignIn</title>
+    <link href="https://fonts.googleapis.com/css?family=Hepta+Slab|Raleway&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <div id="ss1_main_container">
+        <div class="g_background"></div>
+        <div id="signin_container">
+            <table>
+                <tr>
+                    <td>
+                        <div id="signin_input_container">
+                            <div id="signin_input_container_title">Welcome Champ!</div>
+                            <div id="signin_email_container" class="g_input_container">
+                                <span></span>
+                                <input type="text" placeholder="Email" id="signin_email" spellcheck="false" autofocus tabindex="1" />
+                                <div id="email_predefined">@albany.edu</div>
+                            </div>
+                            <div id="signin_password_container" class="g_input_container">
+                                <span></span>
+                                <input type="password" placeholder="Password" id="signin_password" spellcheck="false" tabindex="2" />
+                                <img src="/imgs/eye-off.png" id="password_unhide" class="g_show_password" />
+                            </div>
+                            <div id="signin_rememberme_container">
+                                <input type="checkbox" id="signin_rememberme" checked tabindex="3" />
+                                <span>Remember Me</span>
+                            </div>
+                            <div id="signin_submit" tabindex="4">Sign In</div>
+                            <div id="signin_forget_password" tabindex="5">Forgot Password?</div>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+    <script>
+        window.onload = function() {
+            global_obj.input_label("input", "Email", document.getElementById("signin_email_container"));
+            global_obj.input_label("input", "Password", document.getElementById("signin_password_container"));
+
+            document.getElementById("password_unhide").addEventListener("click", function() {
+                global_obj.toggle_show_password(document.getElementById("signin_password"), this);
+            });
+            document.getElementById("signin_submit").addEventListener("click", signin_obj.login_submit);
+
+            document.getElementById("signin_forget_password").addEventListener("click", signin_obj.forget_password);
+        };
+
+        var signin_obj = function() {
+
+            var ValidateEmail = function(mail) {
+                var regex = /^[a-zA-Z]+([\.-]?[0-9]?)*[a-zA-Z]*@albany.edu$/;
+                var regex2 = /^[a-zA-Z]+([\.-]?[0-9]?)*[a-zA-Z]*$/;
+                if ((mail.value.indexOf("@") > -1 && regex.test(mail.value)) || regex2.test(mail.value)) {
+                    return true;
+                }
+                global_obj.pop_toast("Invalid Email Address", 2000);
+                return false;
+            };
+
+            var login_submit = function() {
+
+
+                if (!(ValidateEmail(document.getElementById("signin_email")))) {
+                    global_obj.pop_toast("Invalid Email", 2000);
+                } else if (document.getElementById("signin_password").value == "") {
+                    global_obj.pop_toast("Please Provide A Password", 2000);
+
+                } else {
+                    var xhr = new XMLHttpRequest();
+                    var url = "http://18.191.158.213:8080/login?action=login";
+                    xhr.open('POST', url);
+                    xhr.setRequestHeader('Content-type', 'application/JSON');
+                    xhr.withCredentials = true;
+                    xhr.onreadystatechange = function() {
+                        if (xhr.status == 200 & xhr.readyState == 4) {
+                            var jresp = xhr.responseText;
+                            var resp = JSON.parse(jresp);
+                            console.log(resp);
+                            if (resp["success"] == true) {
+                                global_obj.pop_toast("Log In Successful", 2000);
+                                var myStorage = window.localStorage;
+                                myStorage.setItem('user_data', jresp);
+                                var myEvent = new CustomEvent('main_dashboard', {
+                                    details: {
+                                        message: "trigger main_dashboard"
+                                    }
+                                });
+                                window.parent.dispatchEvent(myEvent);
+                            } else {
+                                global_obj.pop_toast("Log In Failed", 2000);
+                            }
+                        }
+                    };
+                    var data = {
+                        "email": document.getElementById("signin_email").value, //+"@albany.edu",
+                        "password": document.getElementById("signin_password").value
+                    };
+                    var jdata = JSON.stringify(data);
+                    console.log(jdata);
+                    xhr.send(jdata);
+                }
+            };
+            var forget_password = function() {
+                var myEvent = new CustomEvent('forget_password', {
+                    details: {
+                        message: "trigger forget"
+                    }
+                });
+                window.parent.dispatchEvent(myEvent);
+            };
+
+            return {
+                login_submit: login_submit,
+                forget_password: forget_password
+            }
+        }();
+    </script>
+
+    <script src="https://dane-imran.appspot.com/js/fad_global.js"></script>
+    <link href="https://dane-imran.appspot.com/css/fad_global.css" rel="stylesheet" />
+    <style>
+        body {
+            font-family: 'Raleway', sans-serif;
+            padding: 0px;
+            margin: 0px;
+            overflow: hidden;
+        }
+        
+        div {
+            outline: none;
+        }
+        
+        input,
+        textarea {
+            font-family: 'Raleway', sans-serif;
+        }
+        
+        #signin_input_container_title {
+            float: left;
+            width: 100%;
+            text-align: center;
+            font-size: 1.2rem;
+            color: #48116D;
+            margin-bottom: 20px;
+        }
+        
+        #signin_container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+        
+        #signin_container table {
+            float: left;
+            width: 100%;
+            height: 100%;
+        }
+        
+        #signin_container table tr td {
+            vertical-align: middle;
+        }
+        
+        #signin_input_container {
+            float: left;
+            margin-left: calc(50% - 10.5rem);
+            background-color: #fefefe;
+            width: 21rem;
+            padding: 40px 25px;
+            box-sizing: border-box;
+            box-shadow: 0px 0px 8px #808080;
+            border-radius: 10px;
+        }
+        
+        #signin_rememberme_container {
+            float: left;
+            margin-bottom: 20px;
+        }
+        
+        #signin_rememberme_container input {
+            float: left;
+            cursor: pointer;
+        }
+        
+        #signin_rememberme_container span {
+            float: left;
+        }
+        
+        #signin_submit {
+            float: left;
+            clear: both;
+            width: 18rem;
+            padding: 10px;
+            margin-bottom: 20px;
+            border-radius: 10px;
+            box-sizing: border-box;
+            text-align: center;
+            font-size: 1.2rem;
+            background-color: #48116D;
+            color: #edba32;
+            cursor: pointer;
+        }
+        
+        #signin_submit:hover {
+            opacity: 0.9;
+        }
+        
+        #signin_forget_password {
+            float: left;
+            clear: both;
+            width: 18rem;
+            text-align: center;
+            color: #48116D;
+            opacity: 0.7;
+            text-decoration: underline;
+            font-size: 1rem;
+            cursor: pointer;
+        }
+        
+        #signin_email_container {
+            position: relative;
+            float: left;
+            width: 18rem;
+            margin-bottom: 20px;
+            box-sizing: border-box;
+        }
+        
+        #signin_email {
+            padding-right: 105px;
+        }
+        
+        #email_predefined {
+            position: absolute;
+            top: 7px;
+            right: 8px;
+        }
+        
+        #signin_password_container {
+            position: relative;
+            float: left;
+            width: 18rem;
+            margin-bottom: 20px;
+            box-sizing: border-box;
+        }
+        
+        #signin_password {
+            padding-right: 32px;
+        }
+    </style>
+</body>
+
+</html>

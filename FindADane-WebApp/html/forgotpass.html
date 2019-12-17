@@ -1,0 +1,341 @@
+﻿
+<!DOCTYPE html>
+<!--IM191002A-->
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+    <meta name="viewport" content="initial-scale=1.0">
+    <meta charset="utf-8">
+    <title>Find A Dane - Reset Password</title>
+    <link href="https://fonts.googleapis.com/css?family=Hepta+Slab|Raleway&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <div id="ss1_main_container">
+        <div class="g_background"></div>
+        <div id="forget_password_container">
+            <table>
+                <tr>
+                    <td>
+                        <div id="forget_password_input_container">
+                            <div id="forget_password_input_container_title">Darn! Lets Get A New Password</div>
+
+                            <div id="forget_password_email_container" class="g_input_container">
+                                <span></span>
+                                <input type="text" placeholder="Email" id="forget_password_email" spellcheck="false" tabindex="2" />
+                                <div id="email_predefined">@albany.edu</div>
+                            </div>
+                            <div id="forget_password_otp_container" class="g_input_container">
+                                <span></span>
+                                <input type="number" placeholder="OTP" id="forget_password_otp" spellcheck="false" tabindex="2" />
+                            </div>
+                            <div id="forget_password_get_otp" tabindex="4">Get OTP</div>
+                            <div id="forget_password_password_container" class="g_input_container">
+                                <span></span>
+                                <input type="password" placeholder="Password" id="forget_password_password" spellcheck="false" tabindex="2" />
+                                <img src="/imgs/eye-off.png" id="password_unhide" class="g_show_password" />
+                            </div>
+                            <div id="forget_password_confirm_password_container" class="g_input_container">
+                                <span></span>
+                                <input type="password" placeholder="Confirm" id="forget_password_confirm_password" spellcheck="false" tabindex="2" />
+                                <img src="/imgs/eye-off.png" id="password_unhide2" class="g_show_password" />
+                            </div>
+                            <div id="forget_password_submit" tabindex="4">Reset</div>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+    <script>
+        window.onload = function() {
+            document.getElementById("forget_password_submit").addEventListener("click", forget_password_obj.submit_data);
+
+            global_obj.input_label("input", "Email", document.getElementById("forget_password_email_container"));
+            global_obj.input_label("input", "Password", document.getElementById("forget_password_password_container"));
+            global_obj.input_label("input", "Confirm", document.getElementById("forget_password_confirm_password_container"));
+            global_obj.input_label("input", "OTP", document.getElementById("forget_password_otp_container"));
+
+            document.getElementById("password_unhide").addEventListener("click", function() {
+                global_obj.toggle_show_password(document.getElementById("forget_password_password"), this);
+            });
+            document.getElementById("password_unhide2").addEventListener("click", function() {
+                global_obj.toggle_show_password(document.getElementById("forget_password_confirm_password"), this);
+            });
+
+            document.getElementById("forget_password_get_otp").addEventListener("click", forget_password_obj.get_otp);
+        };
+
+        var forget_password_obj = function() {
+            var isGetOTPExec = false;
+            var originalemail;
+            var email_to_backend;
+
+            var ValidateEmail = function(mail) {
+                var regex = /^[a-zA-Z]+([\.-]?[0-9]?)*[a-zA-Z]*@albany.edu$/;
+                var regex2 = /^[a-zA-Z]+([\.-]?[0-9]?)*[a-zA-Z]*$/;
+                if ((mail.value.indexOf("@") > -1 && regex.test(mail.value)) || regex2.test(mail.value)) {
+                    return true;
+                }
+                global_obj.pop_toast("Invalid Email Address", 2000);
+                return false;
+            };
+
+            var get_otp = function () {
+
+                if (ValidateEmail(document.getElementById("forget_password_email"))) {
+                    isGetOTPExec = true;
+                    var email = ""; originalemail = document.getElementById("forget_password_email").value;
+                    if ((document.getElementById("forget_password_email").value.indexOf("@") > -1)) {
+                        email = document.getElementById("forget_password_email").value.split("@")[0];
+                    } else {
+                        email = document.getElementById("forget_password_email").value;
+                    }
+                    email_to_backend = email + "@albany.edu";
+                    var xhr = new XMLHttpRequest();
+                    var url = "http://18.191.158.213:8080/forgotpass?action=otp";
+                    xhr.open('POST', url);
+                    xhr.setRequestHeader('Content-type', 'application/JSON');
+                    var data = { "email": email_to_backend };
+                    xhr.onreadystatechange = function () {
+                        if (xhr.status == 200 & xhr.readyState == 4) {
+                            var jresp = xhr.responseText;
+                            //var resp = JSON.parse(jresp);
+                            console.log(jresp);
+                        }
+                    };
+
+                    var jdata = JSON.stringify(data); console.log(jdata);
+                    xhr.send(jdata);
+
+
+                    global_obj.pop_toast("OTP Sent To " + email + "@albany.edu", 2000);
+                } else {
+                    isGetOTPExec = false;
+                }
+            };
+
+            var submit_data = function() {
+                var proceed = true;
+                if (document.getElementById("forget_password_email").value == "") {
+                    global_obj.pop_toast("Please Provide UAlbany Email Address", 2000);
+                    proceed = false;
+                } else if (document.getElementById("forget_password_password").value == "") {
+                    global_obj.pop_toast("Please Provide A Password", 2000);
+                    proceed = false;
+                } else if (document.getElementById("forget_password_confirm_password").value == "") {
+                    global_obj.pop_toast("Please Confirm Password", 2000);
+                    proceed = false;
+                } else if (!(document.getElementById("forget_password_confirm_password").value === document.getElementById("forget_password_password").value)) {
+                    global_obj.pop_toast("Confirm Password Does Not Match", 2000);
+                    proceed = false;
+                } else if (!isGetOTPExec) {
+                    global_obj.pop_toast("Please Execute Get OTP", 2000);
+                    proceed = false;
+                }   else if (document.getElementById("forget_password_email").value != originalemail) {
+                    global_obj.pop_toast("You have changed your email, please Execute Get OTP again", 2000);
+                    proceed = false;
+                }  else {
+                    if (document.getElementById("forget_password_otp").value == "") {
+                        global_obj.pop_toast("Please Provide The OTP", 2000);
+                        proceed = false;
+                    }
+                }
+
+                console.log("Proceed is " + proceed);
+                if (proceed == true) {
+                    var xhr = new XMLHttpRequest();
+                    var url = "http://18.191.158.213:8080/forgotpass?action=reset";
+                    xhr.open('POST', url);
+                    xhr.setRequestHeader('Content-type', 'application/JSON');
+                    var data = {
+                        "email": email_to_backend,
+                        "otp": document.getElementById("forget_password_otp").value,
+                        "password": document.getElementById("forget_password_password").value,
+                    };
+                    
+
+                    xhr.onreadystatechange = function () {
+                        if (xhr.status == 200 & xhr.readyState == 4) {
+                            var jresp = xhr.responseText;
+                            var resp = JSON.parse(jresp);
+                            console.log(resp);
+                        }
+                    };
+                    var jdata = JSON.stringify(data); console.log(jdata);
+                    xhr.send(jdata);
+                    global_obj.pop_toast("Success", 2000);
+                }
+
+
+            };
+
+
+
+            return {
+                get_otp: get_otp,
+                submit_data: submit_data
+            }
+
+        }();
+    </script>
+
+    <script src="https://dane-imran.appspot.com/js/fad_global.js"></script>
+    <link href="https://dane-imran.appspot.com/css/fad_global.css" rel="stylesheet" />
+    <style>
+        body {
+            font-family: 'Raleway', sans-serif;
+            padding: 0px;
+            margin: 0px;
+            overflow: hidden;
+        }
+
+        div {
+            outline: none;
+        }
+
+        input,
+        textarea {
+            font-family: 'Raleway', sans-serif;
+        }
+
+            input[type=number]::-webkit-inner-spin-button,
+            input[type=number]::-webkit-outer-spin-button {
+                -webkit-appearance: none;
+                margin: 0;
+            }
+
+        #forget_password_input_container_title {
+            float: left;
+            width: 100%;
+            text-align: center;
+            font-size: 1.2rem;
+            color: #48116D;
+            margin-bottom: 20px;
+        }
+
+        #forget_password_container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+            #forget_password_container table {
+                float: left;
+                width: 100%;
+                height: 100%;
+            }
+
+                #forget_password_container table tr td {
+                    vertical-align: middle;
+                }
+
+        #forget_password_input_container {
+            float: left;
+            margin-left: calc(50% - 14.2rem);
+            background-color: #fefefe;
+            width: 28.4rem;
+            padding: 40px 25px;
+            box-sizing: border-box;
+            box-shadow: 0px 0px 8px #808080;
+            border-radius: 10px;
+        }
+
+        #forget_password_submit {
+            float: left;
+            clear: both;
+            width: 25.25rem;
+            padding: 10px;
+            border-radius: 10px;
+            box-sizing: border-box;
+            text-align: center;
+            font-size: 1.2rem;
+            background-color: #48116D;
+            color: #edba32;
+            cursor: pointer;
+        }
+
+            #forget_password_submit:hover {
+                opacity: 0.9;
+            }
+
+        #forget_password_email_container {
+            position: relative;
+            float: left;
+            width: 25.25rem;
+            margin-bottom: 20px;
+            box-sizing: border-box;
+        }
+
+        #forget_password_email {
+            padding-right: 105px;
+        }
+
+        #email_predefined {
+            position: absolute;
+            top: 7px;
+            right: 8px;
+        }
+
+        #forget_password_password_container {
+            position: relative;
+            float: left;
+            clear: left;
+            width: 12rem;
+            margin-bottom: 20px;
+            box-sizing: border-box;
+        }
+
+        #forget_password_password {
+            padding-right: 32px;
+        }
+
+        #forget_password_confirm_password_container {
+            position: relative;
+            float: left;
+            width: 12rem;
+            margin-bottom: 20px;
+            margin-left: 20px;
+            box-sizing: border-box;
+        }
+
+        #forget_password_confirm_password {
+            padding-right: 32px;
+        }
+
+        #forget_password_otp_container {
+            position: relative;
+            float: left;
+            width: 12rem;
+            margin-bottom: 20px;
+            box-sizing: border-box;
+        }
+
+        #forget_password_get_otp {
+            float: left;
+            /* clear: both; */
+            width: 12rem;
+            padding: 7.5px;
+            margin-left: 20px;
+            border-radius: 5px;
+            box-sizing: border-box;
+            text-align: center;
+            font-size: 1rem;
+            background-color: #48116D;
+            color: #edba32;
+            cursor: pointer;
+        }
+
+            #forget_password_get_otp:hover {
+                opacity: 0.9;
+            }
+    </style>
+</body>
+
+</html>
+<body>
+
+</body>

@@ -1,0 +1,2226 @@
+<!DOCTYPE html>
+<!--TODO Frontend - HasRoom tag on profile items
+Percentage match
+budget, distance,-->
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+    <meta name="viewport" content="initial-scale=1.0">
+    <meta charset="utf-8">
+    <title>Find A Dane - Dashboard</title>
+    <link href="https://fonts.googleapis.com/css?family=Hepta+Slab|Raleway&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
+    <script src="https://dane-imran.appspot.com/js/fad_global.js"></script>
+    <link href="/css/fad_global.css" rel="stylesheet" />
+    <link href="/css/main_dashboard.css" rel="stylesheet" />
+</head>
+
+<body>
+
+    <script>
+        function slider_values() {
+            var parent = this.parentNode;
+            var slides = parent.getElementsByTagName("input");
+            var slide1 = parseFloat(slides[0].value);
+            var slide2 = parseFloat(slides[1].value);
+            if (slide1 > slide2) {
+                var tmp = slide2;
+                slide2 = slide1;
+                slide1 = tmp;
+            }
+            if (this.dataset.type == "search_budget") {
+                document.getElementById("search_budget_min").textContent = "$" + slide1;
+                document.getElementById("search_budget_max").textContent = "$" + slide2;
+                search_processing_obj.update_budget_min_max(slide1, slide2);
+            } else if (this.dataset.type == "search_distance") {
+                document.getElementById("search_distance_min").textContent = slide1 + " mi";
+                document.getElementById("search_distance_max").textContent = slide2 + " mi";
+                search_processing_obj.update_distance_min_max(slide1, slide2);
+            } else if (this.dataset.type == "off_campus_budget") {
+                document.getElementById("off_campus_budget_min").textContent = "$" + slide1;
+                document.getElementById("off_campus_budget_max").textContent = "$" + slide2;
+                get_userdata_obj.update_budget_min_max(slide1, slide2);
+            }
+
+
+        }
+
+
+        window.onload = function() {
+
+            var sliders = document.querySelectorAll("#search_budget_input_slider input");
+            for (var y = 0; y < sliders.length; y++) {
+                if (sliders[y].type === "range") {
+                    sliders[y].dataset.type = "search_budget";
+                    sliders[y].oninput = slider_values;
+                    sliders[y].oninput();
+                }
+            }
+            var sliders2 = document.querySelectorAll("#search_distance_input_slider input");
+            for (var y = 0; y < sliders2.length; y++) {
+                if (sliders2[y].type === "range") {
+                    sliders2[y].dataset.type = "search_distance";
+                    sliders2[y].oninput = slider_values;
+                    sliders2[y].oninput();
+                }
+            }
+            var sliders4 = document.querySelectorAll("#off_campus_budget_input_slider input");
+            for (var y = 0; y < sliders4.length; y++) {
+                if (sliders4[y].type === "range") {
+                    sliders4[y].dataset.type = "off_campus_budget";
+                    sliders4[y].oninput = slider_values;
+                    sliders4[y].oninput();
+                }
+            }
+
+            search_processing_obj.initialize();
+            get_userdata_obj.initialize();
+            results_obj.load();
+            countries_obj.load();
+            languages_obj.load();
+            grad_obj.load();
+            major_obj.load();
+
+            search_countries_obj.load();
+            search_languages_obj.load();
+            search_grad_obj.load();
+            search_major_obj.load();
+
+            var local_storage = window.localStorage;
+            var juserData = local_storage.getItem("user_data");
+            console.log(juserData);
+            var userData = JSON.parse(juserData);
+            console.log(userData);
+            if (userData && userData["success"] == true) {
+                document.getElementById("nav_profile_name").textContent = userData["userDto"]["firstName"] + " " + userData["userDto"]["lastName"];
+                if (userData["userDto"]["profilePicture"] !== null) {
+                    document.getElementById("nav_profile_picture").querySelector("img").src = "data:image/jpeg;base64," + userData["userDto"]["profilePicture"];
+                }
+
+                document.getElementById("nav_profile").addEventListener("click", function() {
+                    profile_modal_obj.open(userData["userDto"]);
+                });
+            }
+            //open
+            model_obj.open();
+            document.getElementById("center_search_button").addEventListener("click", search_processing_obj.submit_data);
+            document.getElementById("submit_step").addEventListener("click", model_obj.next);
+            document.getElementById("previous_step").addEventListener("click", model_obj.previous);
+            document.getElementById("blank_model").addEventListener("click", model_obj.close);
+            document.getElementById("profile_modal_blank").addEventListener("click", profile_modal_obj.close);
+            document.getElementById("selector_looking_off_campus").addEventListener("click", function() {
+                room_toggle_obj.change_pref("looking_off_campus");
+            });
+
+            document.getElementById("selector_have_off_campus").addEventListener("click", function() {
+                room_toggle_obj.change_pref("have_off_campus");
+            });
+
+            document.getElementById("upload_picture_button").addEventListener("change", readFile);
+        };
+
+        function readFile() {
+
+            if (this.files && this.files[0]) {
+
+                var FR = new FileReader();
+
+                FR.addEventListener("load", function(e) {
+                    document.getElementById("uploaded_profile_picture").src = e.target.result;
+                    console.log(e.target.result);
+                    userData["userDto"]["profilePicture"] = e.target.result;
+
+                    get_userdata_obj.update_profile_pic(e.target.result);
+                });
+
+                FR.readAsDataURL(this.files[0]);
+            }
+
+        }
+
+        var results_obj = function() {
+            var profiles_data = [];
+
+
+            var load = function() {
+                var xhr = new XMLHttpRequest();
+                var url = "http://18.191.158.213:8080/search?action=getAll";
+                xhr.open('POST', url);
+                xhr.setRequestHeader('Content-type', 'application/JSON');
+                xhr.withCredentials = true;
+                xhr.onreadystatechange = function() {
+                    if (xhr.status == 200 & xhr.readyState == 4) {
+                        var jresp = xhr.responseText;
+                        var resp = JSON.parse(jresp);
+                        console.log(resp);
+                        if (resp) {
+                            populate_profiles(resp);
+                        }
+                    }
+                };
+                xhr.send();
+            };
+
+            var populate_profiles = function(data) {
+                profiles_data = data;
+                var main_dash_results_container = document.getElementById("main_dash_results_container");
+                main_dash_results_container.innerHTML = "";
+                for (var i = 0; i < profiles_data.length; i++) {
+                    var profile_card_container = document.createElement("div");
+                    profile_card_container.setAttribute("class", "profile_card_container");
+                    profile_card_container.dataset.index = i;
+                    profile_card_container.onclick = function() {
+                        profile_expand(this);
+                    };
+                    var profile_card_picture = document.createElement("div");
+                    profile_card_picture.setAttribute("class", "profile_card_picture");
+                    var profile_card_picture_img = document.createElement("img");
+                    profile_card_picture_img.src = "data:image/jpeg;base64," + profiles_data[i]["profilePicture"];
+                    profile_card_picture.append(profile_card_picture_img);
+                    profile_card_container.append(profile_card_picture);
+
+                    /*
+                        <div class="profile_card_details">
+                    <div class="profile_card_name">Imran Raziuddin Mohammed</div>
+                    <div class="profile_card_major">Computer Science (Grad)</div>
+                    <div class="profile_card_nationality"><span>Nationality</span><span>IN</span></div>
+                    <div class="profile_card_language"><span>Language&nbsp;</span><span>Hindi/Urdu</span></div>
+                </div>
+                        */
+
+                    var profile_card_details = document.createElement("div");
+                    profile_card_details.setAttribute("class", "profile_card_details");
+                    var profile_card_name = document.createElement("div");
+                    profile_card_name.setAttribute("class", "profile_card_name");
+
+                    var ageDifMs = Date.now() - (new Date(profiles_data[i]["birthdate"])).getTime();
+                    var ageDate = new Date(ageDifMs); // miliseconds from epoch
+                    var age = Math.abs(ageDate.getUTCFullYear() - 1970);
+                    profile_card_name.textContent = global_obj.title_case(profiles_data[i]["firstName"] + " " + profiles_data[i]["lastName"]) + ", " + age + (profiles_data[i]["gender"] == null ? "" : profiles_data[i]["gender"] == "MALE" ? "(M)" : "(F)");
+
+                    var profile_card_major = document.createElement("div");
+                    profile_card_major.setAttribute("class", "profile_card_major");
+                    profile_card_major.textContent = profiles_data[i]["major"] == null ? "Major Unavailable" : global_obj.title_case(profiles_data[i]["major"]) + " (" + (profiles_data[i]["graduate"] == null ? "-" : profiles_data[i]["graduate"] ? "Graduate" : "Undergraduate") + ")";
+
+                    var profile_card_nationality = document.createElement("div");
+                    profile_card_nationality.setAttribute("class", "profile_card_nationality");
+                    var profile_card_nationality_span1 = document.createElement("span");
+                    profile_card_nationality_span1.textContent = "Nationality";
+                    var profile_card_nationality_span2 = document.createElement("span");
+                    profile_card_nationality_span2.textContent = global_obj.title_case(profiles_data[i]["nationality"] !== null ? (profiles_data[i]["nationality"].indexOf("_") > -1 ? profiles_data[i]["nationality"].split("_").join(" ") : profiles_data[i]["nationality"]) : "");
+                    profile_card_nationality.appendChild(profile_card_nationality_span1);
+                    profile_card_nationality.appendChild(profile_card_nationality_span2);
+
+                    var profile_card_language = document.createElement("div");
+                    profile_card_language.setAttribute("class", "profile_card_language");
+                    var profile_card_language_span1 = document.createElement("span");
+                    profile_card_language_span1.innerHTML = "Language&nbsp;";
+                    var profile_card_language_span2 = document.createElement("span");
+                    profile_card_language_span2.textContent = global_obj.title_case(profiles_data[i]["language"]);
+                    profile_card_language.appendChild(profile_card_language_span1);
+                    profile_card_language.appendChild(profile_card_language_span2);
+
+                    profile_card_details.appendChild(profile_card_name);
+                    profile_card_details.appendChild(profile_card_major);
+                    profile_card_details.appendChild(profile_card_nationality);
+                    profile_card_details.appendChild(profile_card_language);
+
+                    profile_card_container.append(profile_card_details);
+                    if (profiles_data[i]["matchPercentage"] && profiles_data[i]["matchPercentage"] != null) {
+                        var percentage = document.createElement("div");
+                        percentage.setAttribute("class", "profile_match_container");
+                        percentage.textContent = profiles_data[i]["matchPercentage"] + "%";
+                        profile_card_container.appendChild(percentage);
+                    }
+
+                    main_dash_results_container.appendChild(profile_card_container);
+
+                }
+            };
+
+            var profile_expand = function(elem) {
+                //load profile page with this index
+                var index = elem.dataset.index;
+                console.log(profiles_data);
+                console.log(index);
+                profile_modal_obj.open(profiles_data[index]);
+            };
+
+            return {
+                load: load,
+                populate_profiles: populate_profiles
+            }
+        }();
+
+
+        var search_grad_obj = function() {
+
+            var grad_or_undergrad = [
+                "-- Select an option --",
+                "Graduate",
+                "Undergraduate"
+            ];
+
+            var load = function() {
+                var select_option = document.getElementById("search_graduate_options");
+                select_option.innerHTML = "";
+                for (var i = 0; i < grad_or_undergrad.length; i++) {
+                    var option = document.createElement("div");
+                    option.textContent = grad_or_undergrad[i];
+                    option.setAttribute("class", "global_dropdown_option");
+                    option.dataset.name = grad_or_undergrad[i];
+                    option.onclick = function() {
+                        grad_selected(this);
+                    }
+                    select_option.appendChild(option);
+                }
+            };
+
+            var grad_selected = function(elem) {
+                var selected_name = elem.dataset.name;
+                document.getElementById("search_graduate_value").textContent = selected_name;
+                var isGraduate = selected_name == "Graduate" ? true : false;
+                search_processing_obj.update_grad(isGraduate);
+            };
+
+            return {
+                load: load
+            }
+
+        }();
+
+        var search_major_obj = function() {
+
+            var majors = [
+                "-- Select an option --",
+                "Accounting",
+                "Actuarial and Mathematical Sciences",
+                "Africana Studies",
+                "Anthropology",
+                "Art",
+                "Art History",
+                "Atmospheric Science",
+                "Biochemistry and Molecular Biology",
+                "Bio-Instrumentation",
+                "Biology",
+                "Business Administration",
+                "Business Economics",
+                "Chemistry",
+                "Chinese Studies",
+                "Communication",
+                "Computer Science",
+                "Computer Science and Applied Mathematics",
+                "Criminal Justice",
+                "Digital Forensics",
+                "Documentary Studies",
+                "East Asian Studies",
+                "Economics",
+                "Electrical and Computer Engineering",
+                "Emergency Preparedness, Homeland Security and Cybersecurity",
+                "English",
+                "Environmental Science",
+                "Environmental and Sustainable Engineering",
+                "Financial Market Regulation",
+                "Geography",
+                "Globalization Studies",
+                "History",
+                "Human Biology",
+                "Human Development",
+                "Informatics",
+                "Interdisciplinary Studies",
+                "Japanese Studies",
+                "Journalism",
+                "Latin American, Caribbean and U.S. Latino Studies",
+                "Linguistics",
+                "Mathematics",
+                "Medieval and Renaissance Studies",
+                "Music",
+                "Philosophy",
+                "Physics",
+                "Political Science",
+                "Psychology",
+                "Public Health",
+                "Public Policy and Management",
+                "Religious Studies",
+                "Social Welfare",
+                "Sociology",
+                "Spanish",
+                "Theatre",
+                "Urban Studies and Planning",
+                "Women’s, Gender and Sexuality Studies"
+            ];
+
+            var load = function() {
+                var select_option = document.getElementById("search_major_options");
+                select_option.innerHTML = "";
+                for (var i = 0; i < majors.length; i++) {
+                    var option = document.createElement("div");
+                    option.textContent = majors[i];
+                    option.setAttribute("class", "global_dropdown_option");
+                    option.dataset.name = majors[i];
+                    option.onclick = function() {
+                        major_selected(this);
+                    }
+                    select_option.appendChild(option);
+                }
+            };
+
+            var major_selected = function(elem) {
+                var selected_name = elem.dataset.name;
+                document.getElementById("search_major_value").textContent = selected_name;
+                search_processing_obj.update_major(selected_name);
+            };
+
+            return {
+                load: load
+            }
+
+        }();
+
+        var grad_obj = function() {
+
+            var grad_or_undergrad = [
+                "-- Select an option --",
+                "Graduate",
+                "Undergraduate"
+            ];
+
+            var load = function() {
+                var select_option = document.getElementById("graduate_options");
+                select_option.innerHTML = "";
+                for (var i = 0; i < grad_or_undergrad.length; i++) {
+                    var option = document.createElement("div");
+                    option.textContent = grad_or_undergrad[i];
+                    option.setAttribute("class", "global_dropdown_option");
+                    option.dataset.name = grad_or_undergrad[i];
+                    option.onclick = function() {
+                        grad_selected(this);
+                    }
+                    select_option.appendChild(option);
+                }
+            };
+
+            var grad_selected = function(elem) {
+                var selected_name = elem.dataset.name;
+                document.getElementById("graduate_value").textContent = selected_name;
+                var isGraduate = selected_name == "Graduate" ? true : false;
+                get_userdata_obj.update_grad(isGraduate);
+            };
+
+            return {
+                load: load
+            }
+
+        }();
+
+        var major_obj = function() {
+
+            var majors = [
+                "-- Select an option --",
+                "Accounting",
+                "Actuarial and Mathematical Sciences",
+                "Africana Studies",
+                "Anthropology",
+                "Art",
+                "Art History",
+                "Atmospheric Science",
+                "Biochemistry and Molecular Biology",
+                "Bio-Instrumentation",
+                "Biology",
+                "Business Administration",
+                "Business Economics",
+                "Chemistry",
+                "Chinese Studies",
+                "Communication",
+                "Computer Science",
+                "Computer Science and Applied Mathematics",
+                "Criminal Justice",
+                "Digital Forensics",
+                "Documentary Studies",
+                "East Asian Studies",
+                "Economics",
+                "Electrical and Computer Engineering",
+                "Emergency Preparedness, Homeland Security and Cybersecurity",
+                "English",
+                "Environmental Science",
+                "Environmental and Sustainable Engineering",
+                "Financial Market Regulation",
+                "Geography",
+                "Globalization Studies",
+                "History",
+                "Human Biology",
+                "Human Development",
+                "Informatics",
+                "Interdisciplinary Studies",
+                "Japanese Studies",
+                "Journalism",
+                "Latin American, Caribbean and U.S. Latino Studies",
+                "Linguistics",
+                "Mathematics",
+                "Medieval and Renaissance Studies",
+                "Music",
+                "Philosophy",
+                "Physics",
+                "Political Science",
+                "Psychology",
+                "Public Health",
+                "Public Policy and Management",
+                "Religious Studies",
+                "Social Welfare",
+                "Sociology",
+                "Spanish",
+                "Theatre",
+                "Urban Studies and Planning",
+                "Women’s, Gender and Sexuality Studies"
+            ];
+
+            var load = function() {
+                var select_option = document.getElementById("major_options");
+                select_option.innerHTML = "";
+                for (var i = 0; i < majors.length; i++) {
+                    var option = document.createElement("div");
+                    option.textContent = majors[i];
+                    option.setAttribute("class", "global_dropdown_option");
+                    option.dataset.name = majors[i];
+                    option.onclick = function() {
+                        major_selected(this);
+                    }
+                    select_option.appendChild(option);
+                }
+            };
+
+            var major_selected = function(elem) {
+                var selected_name = elem.dataset.name;
+                document.getElementById("major_value").textContent = selected_name;
+                get_userdata_obj.update_major(selected_name);
+            };
+
+            return {
+                load: load
+            }
+
+        }();
+
+        var model_obj = function() {
+            var step_count = 1;
+
+
+            var open = function() {
+                step_count = 0;
+                document.getElementById("model_parent_container").style.display = "block";
+                next();
+            };
+
+            var close = function() {
+                document.getElementById("model_parent_container").style.display = "none";
+
+            };
+
+            var change_step = function(step) {
+                document.getElementById("steps_container").className = step + "_class";
+                if (step == "step1") {
+                    document.getElementById("model_title").textContent = "Let's Capture More About You";
+                    document.getElementById("progress_bar1").className = "progress_bar filled_box";
+                    document.getElementById("progress_bar2").className = "progress_bar";
+                    document.getElementById("progress_bar3").className = "progress_bar";
+                    document.getElementById("submit_step").textContent = "NEXT";
+                    document.getElementById("previous_step").style.display = "none";
+                } else if (step == "step2") {
+                    document.getElementById("model_title").textContent = "Habits Matter";
+                    document.getElementById("progress_bar1").className = "progress_bar filled_box";
+                    document.getElementById("progress_bar2").className = "progress_bar filled_box";
+                    document.getElementById("progress_bar3").className = "progress_bar";
+                    document.getElementById("submit_step").textContent = "NEXT";
+                    document.getElementById("previous_step").style.display = "block";
+                } else {
+                    document.getElementById("model_title").textContent = "Ultimate Motive";
+                    document.getElementById("progress_bar1").className = "progress_bar filled_box";
+                    document.getElementById("progress_bar2").className = "progress_bar filled_box";
+                    document.getElementById("progress_bar3").className = "progress_bar filled_box";
+                    document.getElementById("submit_step").textContent = "SUBMIT";
+                    document.getElementById("previous_step").style.display = "block";
+                }
+            };
+
+            var next = function() {
+                step_count++;
+                if (step_count < 4) {
+                    change_step("step" + step_count);
+                }
+                if (step_count == 4) {
+                    get_userdata_obj.submit_data();
+                }
+            };
+            var previous = function() {
+                if (step_count > 1) {
+                    step_count--;
+                    change_step("step" + step_count);
+                }
+            };
+
+
+
+            return {
+                open: open,
+                close: close,
+                next: next,
+                previous: previous
+            }
+        }();
+
+        var room_toggle_obj = function() {
+
+            var change_pref = function(pref) {
+                if (pref == "looking_off_campus") {
+                    document.getElementById("step3_container").className = "looking_off_campus_class";
+                    document.getElementById("selector_looking_off_campus").className = "step3_selector_selected";
+                    document.getElementById("selector_have_off_campus").className = "";
+                } else {
+                    document.getElementById("step3_container").className = "have_off_campus_class";
+                    document.getElementById("selector_looking_off_campus").className = "";
+                    document.getElementById("selector_have_off_campus").className = "step3_selector_selected";
+                }
+            };
+
+            return {
+                change_pref: change_pref
+            }
+        }();
+
+        var profile_modal_obj = function() {
+            //"drinking": "ocassional", //index 5 ocassional=0, regular=1, neither=2, null=-1
+            // "smoking": "ocassional", //index 4, ocassional=0, regular=1, neither=2, null=-1
+            // "cooking": "chef", //index 3  chef=0, good_at_cooking=1, basic_level=2, can_assist=3, none=4, null=-1
+            // "hygiene": "extremely clean", //index 2 extremely_clean=0, neat=1, occassional=2, messy=3, null=-1
+            // "sleep": "random", //index 1 //random=0, early=1, regular=2, night_owl=3, vampire=4, null=-1
+            // "deit": "vegan" //index 0 //vegan=0, vegetarian=1, kosher=2, non-veg=3, none=4, null-1
+            var preferenceResponses = [
+                ["Vegan", "Vegetarian", "Kosher", "Non-Vegetarian", "None"],
+                ["Random", "Early Riser [10PM - 6AM]", "Regular [12AM - 8AM]", "Night Owl [2AM - 10PM]", "Vampire [6AM - 2PM]"],
+                ["Extremely Clean", "Neat", "Occasionally Clean", "Messy"],
+                ["Chef", "Good at Cooking", "Basic lelvel of Cooking", "Can assist others", "None"],
+                ["Ocassional", "Regular", "Neither"],
+                ["Ocassional", "Regular", "Neither"]
+            ]
+
+            var open = function(data) {
+                console.log(data);
+                document.getElementById("profile_modal_container").style.display = "block";
+                document.getElementById("profile_modal_name").textContent = data["firstName"] + " " + data["lastName"];
+                document.getElementById("profile_modal_gender").textContent = data["gender"] == null ? "-" : data["gender"] == "MALE" ? "(M)" : "(F)";;
+
+                var ageDifMs = Date.now() - (new Date(data["birthdate"])).getTime();
+                var ageDate = new Date(ageDifMs); // miliseconds from epoch
+                var age = Math.abs(ageDate.getUTCFullYear() - 1970);
+                document.getElementById("profile_modal_age").textContent = age;
+                document.getElementById("profile_modal_nationality").textContent = global_obj.title_case(data["nationality"] != null ? data["nationality"].split("_").join(" ") : "NA");
+                document.getElementById("profile_modal_language").textContent = global_obj.title_case(data["language"] != null ? data["language"].split("_").join(" ") : "NA")
+                document.getElementById("profile_modal_major").textContent = data["major"] == null ? "Major Unavailable" : global_obj.title_case(data["major"]) + " (" + (data["graduate"] == null ? "-" : data["graduate"] ? "Graduate" : "Undergraduate") + ")";
+
+
+                document.getElementById("profile_modal_gender_preference").textContent = data["genderPreference"] == null ? "NA" : data["genderPreference"];
+                document.getElementById("profile_modal_deit").textContent = data["preferenceQuestionResponses"][0] != -1 ? preferenceResponses[0][data["preferenceQuestionResponses"][0]] : "NA";
+                document.getElementById("profile_modal_sleep").textContent = data["preferenceQuestionResponses"][1] != -1 ? preferenceResponses[1][data["preferenceQuestionResponses"][1]] : "NA";
+                document.getElementById("profile_modal_hygeine").textContent = data["preferenceQuestionResponses"][2] != -1 ? preferenceResponses[2][data["preferenceQuestionResponses"][2]] : "NA";
+                document.getElementById("profile_modal_cooking").textContent = data["preferenceQuestionResponses"][3] != -1 ? preferenceResponses[3][data["preferenceQuestionResponses"][3]] : "NA";
+                document.getElementById("profile_modal_smoking").textContent = data["preferenceQuestionResponses"][4] != -1 ? preferenceResponses[4][data["preferenceQuestionResponses"][4]] : "NA";
+                document.getElementById("profile_modal_drinking").textContent = data["preferenceQuestionResponses"][5] != -1 ? preferenceResponses[5][data["preferenceQuestionResponses"][5]] : "NA";
+
+                if (data["hasRoom"]) {
+                    document.getElementById("profile_modal_has_room").textContent = "Yes";
+                    document.getElementById("profile_modal_rent_title").textContent = "Rent";
+                    document.getElementById("profile_modal_rent").textContent = data["rent"];
+                    document.getElementById("profile_modal_distance").textContent = data["distanceFromUniversity"];
+                } else {
+                    document.getElementById("profile_modal_has_room").textContent = "No";
+                    document.getElementById("profile_modal_rent_title").textContent = "Budget Range";
+                    document.getElementById("profile_modal_rent").textContent = data["budgetRange"];
+                    document.getElementById("profile_modal_distance").textContent = data["distanceRange"];
+
+                }
+
+                document.getElementById("profile_modal_picture_src").src = data["profilePicture"] !== null ? "data:image/jpeg;base64," + data["profilePicture"] : "/imgs/dummy1.jpg";
+            };
+
+            var close = function() {
+                document.getElementById("profile_modal_container").style.display = "none";
+
+            };
+
+            return {
+                open: open,
+                close: close
+            }
+        }();
+
+        var search_processing_obj = function() {
+            var search_query = {
+                "numResults": 20,
+                "gender": null, //MALE,FEMALE,null
+                "numRoommates": 3, //1,2,3,4,5,null
+                "rentalPeriod": "YEAR", //"fall", "spring", "year", null
+                "nationality": null, //some_value, null
+                "major": null, //some_value, null
+                "isGraduate": null, //some_value, null
+                "language": null, //some_value, null
+                "budgetMin": 50, //some_value, 50
+                "budgetMax": 5000, //some_value, 5000
+                "distanceMin": 0, //some_value, 0
+                "distanceMax": 50, //some_value, 50
+                "preferenceQuestionResponses": [-1, -1, -1, -1, -1, -1] //
+                    //todo on campus off campus, remove bedrooms
+
+                //"drinking": "ocassional", //index 5 ocassional=0, regular=1, neither=2, null=-1
+                // "smoking": "ocassional", //index 4, ocassional=0, regular=1, neither=2, null=-1
+                // "cooking": "chef", //index 3  chef=0, good_at_cooking=1, basic_level=2, can_assist=3, none=4, null=-1
+                // "hygiene": "extremely clean", //index 2 extremely_clean=0, neat=1, occassional=2, messy=3, null=-1
+                // "sleep": "random", //index 1 //random=0, early=1, regular=2, night_owl=3, vampire=4, null=-1
+                // "deit": "vegan" //index 0 //vegan=0, vegetarian=1, kosher=2, non-veg=3, none=4, null-1
+            };
+            var initialize = function() {
+                document.getElementById("search_gender_male").addEventListener("click", function() {
+                    this.className = "search_gender_selected";
+                    document.getElementById("search_gender_female").className = "";
+                    document.getElementById("search_gender_any").className = "";
+                    search_query["gender"] = "MALE";
+                });
+                document.getElementById("search_gender_female").addEventListener("click", function() {
+                    this.className = "search_gender_selected";
+                    document.getElementById("search_gender_male").className = "";
+                    document.getElementById("search_gender_any").className = "";
+                    search_query["gender"] = "FEMALE";
+                });
+                document.getElementById("search_gender_any").addEventListener("click", function() {
+                    this.className = "search_gender_selected";
+                    document.getElementById("search_gender_male").className = "";
+                    document.getElementById("search_gender_female").className = "";
+                    search_query["gender"] = null;
+                });
+                //TODO samplpe nikhil
+                document.getElementById("search_roommates_1").addEventListener("click", function() {
+                    if (search_query["numRoommates"] == 1) {
+                        document.getElementById("search_roommates_1").className = "";
+                        search_query["numRoommates"] = null;
+                        return;
+                    }
+                    this.className = "search_roommates_selected";
+                    document.getElementById("search_roommates_2").className = "";
+                    document.getElementById("search_roommates_3").className = "";
+                    document.getElementById("search_roommates_4").className = "";
+                    document.getElementById("search_roommates_5").className = "";
+                    search_query["numRoommates"] = 1;
+                });
+
+                document.getElementById("search_roommates_2").addEventListener("click", function() {
+                    if (search_query["numRoommates"] == 2) {
+                        document.getElementById("search_roommates_2").className = "";
+                        search_query["numRoommates"] = null;
+                        return;
+                    }
+                    this.className = "search_roommates_selected";
+                    document.getElementById("search_roommates_1").className = "";
+                    document.getElementById("search_roommates_3").className = "";
+                    document.getElementById("search_roommates_4").className = "";
+                    document.getElementById("search_roommates_5").className = "";
+                    search_query["numRoommates"] = 2;
+                });
+
+
+                document.getElementById("search_roommates_3").addEventListener("click", function() {
+                    if (search_query["numRoommates"] == 3) {
+                        document.getElementById("search_roommates_3").className = "";
+                        search_query["numRoommates"] = null;
+                        return;
+                    }
+                    this.className = "search_roommates_selected";
+                    document.getElementById("search_roommates_1").className = "";
+                    document.getElementById("search_roommates_2").className = "";
+                    document.getElementById("search_roommates_4").className = "";
+                    document.getElementById("search_roommates_5").className = "";
+                    search_query["numRoommates"] = 3;
+                });
+
+                document.getElementById("search_roommates_4").addEventListener("click", function() {
+                    if (search_query["numRoommates"] == 4) {
+                        document.getElementById("search_roommates_4").className = "";
+                        search_query["numRoommates"] = null;
+                        return;
+                    }
+                    this.className = "search_roommates_selected";
+                    document.getElementById("search_roommates_1").className = "";
+                    document.getElementById("search_roommates_2").className = "";
+                    document.getElementById("search_roommates_3").className = "";
+                    document.getElementById("search_roommates_5").className = "";
+                    search_query["numRoommates"] = 4;
+                });
+
+                document.getElementById("search_roommates_5").addEventListener("click", function() {
+                    if (search_query["numRoommates"] == 5) {
+                        document.getElementById("search_roommates_5").className = "";
+                        search_query["numRoommates"] = null;
+                        return;
+                    }
+                    this.className = "search_roommates_selected";
+                    document.getElementById("search_roommates_1").className = "";
+                    document.getElementById("search_roommates_2").className = "";
+                    document.getElementById("search_roommates_3").className = "";
+                    document.getElementById("search_roommates_4").className = "";
+                    search_query["numRoommates"] = 5;
+                });
+
+
+                document.getElementById("search_rental_period_six_months").addEventListener("click", function() {
+                    if (search_query["rentalPeriod"] == "FALL") {
+                        document.getElementById("search_rental_period_six_months").className = "";
+                        search_query["rentalPeriod"] = null;
+                        return;
+                    }
+                    this.className = "search_rental_period_selected";
+                    document.getElementById("search_rental_period_nine_months").className = "";
+                    document.getElementById("search_rental_period_annual").className = "";
+                    search_query["rentalPeriod"] = "FALL";
+                });
+
+                document.getElementById("search_rental_period_nine_months").addEventListener("click", function() {
+                    if (search_query["rentalPeriod"] == "SPRING") {
+                        document.getElementById("search_rental_period_nine_months").className = "";
+                        search_query["rentalPeriod"] = null;
+                        return;
+                    }
+                    this.className = "search_rental_period_selected";
+                    document.getElementById("search_rental_period_six_months").className = "";
+                    document.getElementById("search_rental_period_annual").className = "";
+                    search_query["rentalPeriod"] = "SPRING";
+                });
+
+                document.getElementById("search_rental_period_annual").addEventListener("click", function() {
+                    if (search_query["rentalPeriod"] == "YEAR") {
+                        document.getElementById("search_rental_period_annual").className = "";
+                        search_query["rentalPeriod"] = null;
+                        return;
+                    }
+                    this.className = "search_rental_period_selected";
+                    document.getElementById("search_rental_period_six_months").className = "";
+                    document.getElementById("search_rental_period_nine_months").className = "";
+                    search_query["rentalPeriod"] = "YEAR";
+                });
+
+                // "preferenceQuestionResponses": [-1, -1, -1, -1, -1, -1] //
+                //"drinking": "ocassional", //index 5 ocassional=0, regular=1, neither=2, null=-1
+                // "smoking": "ocassional", //index 4, ocassional=0, regular=1, neither=2, null=-1
+                // "cooking": "chef", //index 3  chef=0, good_at_cooking=1, basic_level=2, can_assist=3, none=4, null=-1
+                // "hygiene": "extremely clean", //index 2 extremely_clean=0, neat=1, occassional=2, messy=3, null=-1
+                // "sleep": "random", //index 1 //random=0, early=1, regular=2, night_owl=3, vampire=4, null=-1
+                // "deit": "vegan" //index 0 //vegan=0, vegetarian=1, kosher=2, non-veg=3, none=4, null-1
+
+                document.getElementById("search_diet_1").addEventListener("click", function() {
+                    if (search_query["preferenceQuestionResponses"][0] == 0) {
+                        document.getElementById("search_diet_1").className = "";
+                        search_query["preferenceQuestionResponses"][0] = null;
+                        return;
+                    }
+                    this.className = "step2_answer_option_selected";
+                    document.getElementById("search_diet_2").className = "";
+                    document.getElementById("search_diet_3").className = "";
+                    document.getElementById("search_diet_4").className = "";
+                    document.getElementById("search_diet_5").className = "";
+                    search_query["preferenceQuestionResponses"][0] = 0;
+                });
+
+                document.getElementById("search_diet_2").addEventListener("click", function() {
+                    if (search_query["preferenceQuestionResponses"][0] == 1) {
+                        document.getElementById("search_diet_2").className = "";
+                        search_query["preferenceQuestionResponses"][0] = null;
+                        return;
+                    }
+                    this.className = "step2_answer_option_selected";
+                    document.getElementById("search_diet_1").className = "";
+                    document.getElementById("search_diet_3").className = "";
+                    document.getElementById("search_diet_4").className = "";
+                    document.getElementById("search_diet_5").className = "";
+                    search_query["preferenceQuestionResponses"][0] = 1;
+                });
+
+                document.getElementById("search_diet_3").addEventListener("click", function() {
+                    if (search_query["preferenceQuestionResponses"][0] == 2) {
+                        document.getElementById("search_diet_3").className = "";
+                        search_query["preferenceQuestionResponses"][0] = null;
+                        return;
+                    }
+                    this.className = "step2_answer_option_selected";
+                    document.getElementById("search_diet_1").className = "";
+                    document.getElementById("search_diet_2").className = "";
+                    document.getElementById("search_diet_4").className = "";
+                    document.getElementById("search_diet_5").className = "";
+                    search_query["preferenceQuestionResponses"][0] = 2;
+                });
+
+                document.getElementById("search_diet_4").addEventListener("click", function() {
+                    if (search_query["preferenceQuestionResponses"][0] == 3) {
+                        document.getElementById("search_diet_4").className = "";
+                        search_query["preferenceQuestionResponses"][0] = null;
+                        return;
+                    }
+                    this.className = "step2_answer_option_selected";
+                    document.getElementById("search_diet_1").className = "";
+                    document.getElementById("search_diet_2").className = "";
+                    document.getElementById("search_diet_3").className = "";
+                    document.getElementById("search_diet_5").className = "";
+                    search_query["preferenceQuestionResponses"][0] = 3;
+                });
+
+                document.getElementById("search_diet_5").addEventListener("click", function() {
+                    if (search_query["preferenceQuestionResponses"][0] == 4) {
+                        document.getElementById("search_diet_5").className = "";
+                        search_query["preferenceQuestionResponses"][0] = null;
+                        return;
+                    }
+                    this.className = "step2_answer_option_selected";
+                    document.getElementById("search_diet_1").className = "";
+                    document.getElementById("search_diet_2").className = "";
+                    document.getElementById("search_diet_3").className = "";
+                    document.getElementById("search_diet_4").className = "";
+                    search_query["preferenceQuestionResponses"][0] = 4;
+                });
+
+
+
+                document.getElementById("search_sleep_1").addEventListener("click", function() {
+                    if (search_query["preferenceQuestionResponses"][1] == 0) {
+                        document.getElementById("search_sleep_1").className = "";
+                        search_query["preferenceQuestionResponses"][1] = null;
+                        return;
+                    }
+                    this.className = "search_answer_option_selected";
+                    document.getElementById("search_sleep_2").className = "";
+                    document.getElementById("search_sleep_3").className = "";
+                    document.getElementById("search_sleep_4").className = "";
+                    document.getElementById("search_sleep_5").className = "";
+                    search_query["preferenceQuestionResponses"][1] = 0;
+                });
+
+                document.getElementById("search_sleep_2").addEventListener("click", function() {
+                    if (search_query["preferenceQuestionResponses"][1] == 1) {
+                        document.getElementById("search_sleep_2").className = "";
+                        search_query["preferenceQuestionResponses"][1] = null;
+                        return;
+                    }
+                    this.className = "search_answer_option_selected";
+                    document.getElementById("search_sleep_1").className = "";
+                    document.getElementById("search_sleep_3").className = "";
+                    document.getElementById("search_sleep_4").className = "";
+                    document.getElementById("search_sleep_5").className = "";
+                    search_query["preferenceQuestionResponses"][1] = 1;
+                });
+
+                document.getElementById("search_sleep_3").addEventListener("click", function() {
+                    if (search_query["preferenceQuestionResponses"][1] == 2) {
+                        document.getElementById("search_sleep_3").className = "";
+                        search_query["preferenceQuestionResponses"][1] = null;
+                        return;
+                    }
+                    this.className = "search_answer_option_selected";
+                    document.getElementById("search_sleep_1").className = "";
+                    document.getElementById("search_sleep_2").className = "";
+                    document.getElementById("search_sleep_4").className = "";
+                    document.getElementById("search_sleep_5").className = "";
+                    search_query["preferenceQuestionResponses"][1] = 2;
+                });
+
+                document.getElementById("search_sleep_4").addEventListener("click", function() {
+                    if (search_query["preferenceQuestionResponses"][1] == 3) {
+                        document.getElementById("search_sleep_4").className = "";
+                        search_query["preferenceQuestionResponses"][1] = null;
+                        return;
+                    }
+                    this.className = "search_answer_option_selected";
+                    document.getElementById("search_sleep_2").className = "";
+                    document.getElementById("search_sleep_3").className = "";
+                    document.getElementById("search_sleep_1").className = "";
+                    document.getElementById("search_sleep_5").className = "";
+                    search_query["preferenceQuestionResponses"][1] = 3;
+                });
+
+                document.getElementById("search_sleep_5").addEventListener("click", function() {
+                    if (search_query["preferenceQuestionResponses"][1] == 4) {
+                        document.getElementById("search_sleep_5").className = "";
+                        search_query["preferenceQuestionResponses"][1] = null;
+                        return;
+                    }
+                    this.className = "search_answer_option_selected";
+                    document.getElementById("search_sleep_2").className = "";
+                    document.getElementById("search_sleep_3").className = "";
+                    document.getElementById("search_sleep_4").className = "";
+                    document.getElementById("search_sleep_1").className = "";
+                    search_query["preferenceQuestionResponses"][1] = 4;
+                });
+
+
+                document.getElementById("search_hygiene_1").addEventListener("click", function() {
+                    if (search_query["preferenceQuestionResponses"][2] == 0) {
+                        document.getElementById("search_hygiene_1").className = "";
+                        search_query["preferenceQuestionResponses"][2] = null;
+                        return;
+                    }
+                    this.className = "search_answer_option_selected";
+                    document.getElementById("search_hygiene_2").className = "";
+                    document.getElementById("search_hygiene_3").className = "";
+                    document.getElementById("search_hygiene_4").className = "";
+                    search_query["preferenceQuestionResponses"][2] = 0;
+                });
+
+                document.getElementById("search_hygiene_2").addEventListener("click", function() {
+                    if (search_query["preferenceQuestionResponses"][2] == 1) {
+                        document.getElementById("search_hygiene_2").className = "";
+                        search_query["preferenceQuestionResponses"][2] = null;
+                        return;
+                    }
+                    this.className = "search_answer_option_selected";
+                    document.getElementById("search_hygiene_1").className = "";
+                    document.getElementById("search_hygiene_3").className = "";
+                    document.getElementById("search_hygiene_4").className = "";
+                    search_query["preferenceQuestionResponses"][2] = 1;
+                });
+
+                document.getElementById("search_hygiene_3").addEventListener("click", function() {
+                    if (search_query["preferenceQuestionResponses"][2] == 2) {
+                        document.getElementById("search_hygiene_3").className = "";
+                        search_query["preferenceQuestionResponses"][2] = null;
+                        return;
+                    }
+                    this.className = "search_answer_option_selected";
+                    document.getElementById("search_hygiene_1").className = "";
+                    document.getElementById("search_hygiene_2").className = "";
+                    document.getElementById("search_hygiene_4").className = "";
+                    search_query["preferenceQuestionResponses"][2] = 2;
+                });
+
+                document.getElementById("search_hygiene_4").addEventListener("click", function() {
+                    if (search_query["preferenceQuestionResponses"][2] == 3) {
+                        document.getElementById("search_hygiene_4").className = "";
+                        search_query["preferenceQuestionResponses"][2] = null;
+                        return;
+                    }
+                    this.className = "search_answer_option_selected";
+                    document.getElementById("search_hygiene_1").className = "";
+                    document.getElementById("search_hygiene_2").className = "";
+                    document.getElementById("search_hygiene_3").className = "";
+                    search_query["preferenceQuestionResponses"][2] = 3;
+                });
+
+                document.getElementById("search_cooking_1").addEventListener("click", function() {
+                    if (search_query["preferenceQuestionResponses"][3] == 0) {
+                        document.getElementById("search_cooking_1").className = "";
+                        search_query["preferenceQuestionResponses"][3] = null;
+                        return;
+                    }
+                    this.className = "search_answer_option_selected";
+                    document.getElementById("search_cooking_2").className = "";
+                    document.getElementById("search_cooking_3").className = "";
+                    document.getElementById("search_cooking_4").className = "";
+                    document.getElementById("search_cooking_5").className = "";
+                    search_query["preferenceQuestionResponses"][3] = 0;
+                });
+
+                document.getElementById("search_cooking_2").addEventListener("click", function() {
+                    if (search_query["preferenceQuestionResponses"][3] == 1) {
+                        document.getElementById("search_cooking_2").className = "";
+                        search_query["preferenceQuestionResponses"][3] = null;
+                        return;
+                    }
+                    this.className = "search_answer_option_selected";
+                    document.getElementById("search_cooking_1").className = "";
+                    document.getElementById("search_cooking_3").className = "";
+                    document.getElementById("search_cooking_4").className = "";
+                    document.getElementById("search_cooking_5").className = "";
+                    search_query["preferenceQuestionResponses"][3] = 1;
+                });
+
+                document.getElementById("search_cooking_3").addEventListener("click", function() {
+                    if (search_query["preferenceQuestionResponses"][3] == 2) {
+                        document.getElementById("search_cooking_3").className = "";
+                        search_query["preferenceQuestionResponses"][3] = null;
+                        return;
+                    }
+                    this.className = "search_answer_option_selected";
+                    document.getElementById("search_cooking_1").className = "";
+                    document.getElementById("search_cooking_2").className = "";
+                    document.getElementById("search_cooking_4").className = "";
+                    document.getElementById("search_cooking_5").className = "";
+                    search_query["preferenceQuestionResponses"][3] = 2;
+                });
+
+                document.getElementById("search_cooking_4").addEventListener("click", function() {
+                    if (search_query["preferenceQuestionResponses"][3] == 3) {
+                        document.getElementById("search_cooking_4").className = "";
+                        search_query["preferenceQuestionResponses"][3] = null;
+                        return;
+                    }
+                    this.className = "search_answer_option_selected";
+                    document.getElementById("search_cooking_1").className = "";
+                    document.getElementById("search_cooking_2").className = "";
+                    document.getElementById("search_cooking_3").className = "";
+                    document.getElementById("search_cooking_5").className = "";
+                    search_query["preferenceQuestionResponses"][3] = 3;
+                });
+
+                document.getElementById("search_cooking_5").addEventListener("click", function() {
+                    if (search_query["preferenceQuestionResponses"][3] == 4) {
+                        document.getElementById("search_cooking_5").className = "";
+                        search_query["preferenceQuestionResponses"][3] = null;
+                        return;
+                    }
+                    this.className = "search_answer_option_selected";
+                    document.getElementById("search_cooking_1").className = "";
+                    document.getElementById("search_cooking_2").className = "";
+                    document.getElementById("search_cooking_3").className = "";
+                    document.getElementById("search_cooking_4").className = "";
+                    search_query["preferenceQuestionResponses"][3] = 4;
+                });
+
+                document.getElementById("search_smoking_1").addEventListener("click", function() {
+                    if (search_query["preferenceQuestionResponses"][4] == 0) {
+                        document.getElementById("search_smoking_1").className = "";
+                        search_query["preferenceQuestionResponses"][4] = null;
+                        return;
+                    }
+                    this.className = "search_answer_option_selected";
+                    document.getElementById("search_smoking_2").className = "";
+                    document.getElementById("search_smoking_3").className = "";
+                    search_query["preferenceQuestionResponses"][4] = 0;
+                });
+
+                document.getElementById("search_smoking_2").addEventListener("click", function() {
+                    if (search_query["preferenceQuestionResponses"][4] == 1) {
+                        document.getElementById("search_smoking_2").className = "";
+                        search_query["preferenceQuestionResponses"][4] = null;
+                        return;
+                    }
+                    this.className = "search_answer_option_selected";
+                    document.getElementById("search_smoking_1").className = "";
+                    document.getElementById("search_smoking_3").className = "";
+                    search_query["preferenceQuestionResponses"][4] = 1;
+                });
+
+                document.getElementById("search_smoking_3").addEventListener("click", function() {
+                    if (search_query["preferenceQuestionResponses"][4] == 2) {
+                        document.getElementById("search_smoking_3").className = "";
+                        search_query["preferenceQuestionResponses"][4] = null;
+                        return;
+                    }
+                    this.className = "search_answer_option_selected";
+                    document.getElementById("search_smoking_1").className = "";
+                    document.getElementById("search_smoking_2").className = "";
+                    search_query["preferenceQuestionResponses"][4] = 2;
+                });
+
+                document.getElementById("search_drinking_1").addEventListener("click", function() {
+                    if (search_query["preferenceQuestionResponses"][5] == 0) {
+                        document.getElementById("search_drinking_1").className = "";
+                        search_query["preferenceQuestionResponses"][5] = null;
+                        return;
+                    }
+                    this.className = "search_answer_option_selected";
+                    document.getElementById("search_drinking_2").className = "";
+                    document.getElementById("search_drinking_3").className = "";
+                    search_query["preferenceQuestionResponses"][5] = 0;
+                });
+
+                document.getElementById("search_drinking_2").addEventListener("click", function() {
+                    if (search_query["preferenceQuestionResponses"][5] == 1) {
+                        document.getElementById("search_drinking_2").className = "";
+                        search_query["preferenceQuestionResponses"][5] = null;
+                        return;
+                    }
+                    this.className = "search_answer_option_selected";
+                    document.getElementById("search_drinking_1").className = "";
+                    document.getElementById("search_drinking_3").className = "";
+                    search_query["preferenceQuestionResponses"][5] = 1;
+                });
+
+                document.getElementById("search_drinking_3").addEventListener("click", function() {
+                    if (search_query["preferenceQuestionResponses"][5] == 2) {
+                        document.getElementById("search_drinking_3").className = "";
+                        search_query["preferenceQuestionResponses"][5] = null;
+                        return;
+                    }
+                    this.className = "search_answer_option_selected";
+                    document.getElementById("search_drinking_1").className = "";
+                    document.getElementById("search_drinking_2").className = "";
+                    search_query["preferenceQuestionResponses"][5] = 2;
+                });
+
+
+                console.log(search_query);
+            };
+
+            var update_nationality = function(nationality) {
+                search_query["nationality"] = nationality == "--_SELECT_AN_OPTION_--" ? null : nationality;
+                console.log(search_query);
+            };
+            var update_major = function(major) {
+                search_query["major"] = major == "--_SELECT_AN_OPTION_--" ? null : major;
+                console.log(search_query);
+            };
+            var update_grad = function(grad) {
+                search_query["isGraduate"] = grad;
+                console.log(search_query);
+            };
+            var update_language = function(language) {
+                search_query["language"] = language == "--_SELECT_AN_OPTION_--" ? null : language;
+                console.log(search_query);
+            };
+
+            var update_budget_min_max = function(min, max) {
+                search_query["budgetMin"] = min;
+                search_query["budgetMax"] = max;
+            };
+
+            var update_distance_min_max = function(min, max) {
+                search_query["distanceMin"] = min;
+                search_query["distanceMax"] = max;
+            };
+
+            var submit_data = function() {
+                var xhr = new XMLHttpRequest();
+                var url = "http://18.191.158.213:8080/search?action=search";
+                xhr.open('POST', url);
+                xhr.setRequestHeader('Content-type', 'application/JSON');
+                xhr.withCredentials = true;
+                xhr.onreadystatechange = function() {
+                    if (xhr.status == 200 & xhr.readyState == 4) {
+                        var jresp = xhr.responseText;
+                        var resp = JSON.parse(jresp);
+                        console.log(resp);
+                        if (resp && resp.length > 0) {
+                            var temp_result = [];
+                            for (var i = 0; i < resp.length; i++) {
+                                var temp_obj = {};
+                                temp_obj = resp[i]["userDto"];
+                                temp_obj["matchPercentage"] = resp[i]["matchPercentage"];
+                                temp_result.push(temp_obj);
+                            }
+                            results_obj.populate_profiles(temp_result);
+
+                        } else {
+                            global_obj.pop_toast("Psst! No Match Found", 2000);
+                        }
+
+                    }
+                };
+                var jdata = JSON.stringify(search_query);
+                console.log(jdata);
+                xhr.send(jdata);
+            };
+
+
+            return {
+                initialize: initialize,
+                update_nationality: update_nationality,
+                update_major: update_major,
+                update_grad: update_grad,
+                update_language: update_language,
+                update_budget_min_max: update_budget_min_max,
+                update_distance_min_max: update_distance_min_max,
+                submit_data: submit_data
+            }
+        }();
+
+
+        var get_userdata_obj = function() {
+            var getdata_query = {
+                "profilePicture": null,
+                "genderPreference": null, //MALE,FEMALE,null
+                "numberOfRoommates": 3, //1,2,3,4,5,null
+                "rentalPeriod": "year", //6,9,12, null
+                "nationality": null, //some_value, null
+                "major": null, //some_value, null
+                "isGraduate": null, //some_valuprofilePicturee, null
+                "language": null, //some_value, null
+                "budgetMin": 50, //some_value, 50
+                "budgetRange": 5000, //some_value, 5000
+                "distanceFromUniversity": 0, //some_value, 0
+                "preferenceQuestionResponses": [-1, -1, -1, -1, -1, -1],
+                "isOffCampus": true,
+                "hasRoom": false,
+                "rent": null
+                    //
+                    //"drinking": "ocassional", //index 5 ocassional=0, regular=1, neither=2, null=-1
+                    // "smoking": "ocassional", //index 4, ocassional=0, regular=1, neither=2, null=-1
+                    // "cooking": "chef", //index 3  chef=0, good_at_cooking=1, basic_level=2, can_assist=3, none=4, null=-1
+                    // "hygiene": "extremely clean", //index 2 extremely_clean=0, neat=1, occassional=2, messy=3, null=-1
+                    // "sleep": "random", //index 1 //random=0, early=1, regular=2, night_owl=3, vampire=4, null=-1
+                    // "deit": "vegan" //index 0 //vegan=0, vegetarian=1, kosher=2, non-veg=3, none=4, null-1
+            };
+            var initialize = function() {
+                document.getElementById("getdata_gender_male").addEventListener("click", function() {
+                    this.className = "off_campus_gender_selected";
+                    document.getElementById("getdata_gender_female").className = "";
+                    document.getElementById("getdata_gender_any").className = "";
+                    getdata_query["genderPreference"] = "MALE";
+                });
+                document.getElementById("getdata_gender_female").addEventListener("click", function() {
+                    this.className = "off_campus_gender_selected";
+                    document.getElementById("getdata_gender_male").className = "";
+                    document.getElementById("getdata_gender_any").className = "";
+                    getdata_query["genderPreference"] = "FEMALE";
+                });
+                document.getElementById("getdata_gender_any").addEventListener("click", function() {
+                    this.className = "off_campus_gender_selected";
+                    document.getElementById("getdata_gender_male").className = "";
+                    document.getElementById("getdata_gender_female").className = "";
+                    getdata_query["genderPreference"] = null;
+                });
+                //TODO samplpe nikhil
+                document.getElementById("getdata_roommates_1").addEventListener("click", function() {
+                    this.className = "off_campus_roommates_selected";
+                    document.getElementById("getdata_roommates_2").className = "";
+                    document.getElementById("getdata_roommates_3").className = "";
+                    document.getElementById("getdata_roommates_4").className = "";
+                    document.getElementById("getdata_roommates_5").className = "";
+                    getdata_query["numberOfRoommates"] = 1;
+                });
+
+                document.getElementById("getdata_roommates_2").addEventListener("click", function() {
+                    this.className = "off_campus_roommates_selected";
+                    document.getElementById("getdata_roommates_1").className = "";
+                    document.getElementById("getdata_roommates_3").className = "";
+                    document.getElementById("getdata_roommates_4").className = "";
+                    document.getElementById("getdata_roommates_5").className = "";
+                    getdata_query["numberOfRoommates"] = 2;
+                });
+
+
+                document.getElementById("getdata_roommates_3").addEventListener("click", function() {
+                    this.className = "off_campus_roommates_selected";
+                    document.getElementById("getdata_roommates_1").className = "";
+                    document.getElementById("getdata_roommates_2").className = "";
+                    document.getElementById("getdata_roommates_4").className = "";
+                    document.getElementById("getdata_roommates_5").className = "";
+                    getdata_query["numberOfRoommates"] = 3;
+                });
+
+                document.getElementById("getdata_roommates_4").addEventListener("click", function() {
+                    this.className = "off_campus_roommates_selected";
+                    document.getElementById("getdata_roommates_1").className = "";
+                    document.getElementById("getdata_roommates_2").className = "";
+                    document.getElementById("getdata_roommates_3").className = "";
+                    document.getElementById("getdata_roommates_5").className = "";
+                    getdata_query["numberOfRoommates"] = 4;
+                });
+
+                document.getElementById("getdata_roommates_5").addEventListener("click", function() {
+                    this.className = "off_campus_roommates_selected";
+                    document.getElementById("getdata_roommates_1").className = "";
+                    document.getElementById("getdata_roommates_2").className = "";
+                    document.getElementById("getdata_roommates_3").className = "";
+                    document.getElementById("getdata_roommates_4").className = "";
+                    getdata_query["numberOfRoommates"] = 5;
+                });
+
+
+
+                document.getElementById("getdata_rental_period_six_months").addEventListener("click", function() {
+                    this.className = "off_campus_rental_period_selected";
+                    document.getElementById("getdata_rental_period_nine_months").className = "";
+                    document.getElementById("getdata_rental_period_annual").className = "";
+                    getdata_query["rentalPeriod"] = "FALL";
+                });
+
+                document.getElementById("getdata_rental_period_nine_months").addEventListener("click", function() {
+                    this.className = "off_campus_rental_period_selected";
+                    document.getElementById("getdata_rental_period_six_months").className = "";
+                    document.getElementById("getdata_rental_period_annual").className = "";
+                    getdata_query["rentalPeriod"] = "SPRING";
+                });
+
+                document.getElementById("getdata_rental_period_annual").addEventListener("click", function() {
+                    this.className = "off_campus_rental_period_selected";
+                    document.getElementById("getdata_rental_period_six_months").className = "";
+                    document.getElementById("getdata_rental_period_nine_months").className = "";
+                    getdata_query["rentalPeriod"] = "YEAR";
+                });
+
+                //for offcampus having a room
+                document.getElementById("getdata_have_gender_male").addEventListener("click", function() {
+                    this.className = "have_off_campus_gender_selected";
+                    document.getElementById("getdata_have_gender_female").className = "";
+                    document.getElementById("getdata_have_gender_any").className = "";
+                    getdata_query["genderPreference"] = "MALE";
+                });
+                document.getElementById("getdata_have_gender_female").addEventListener("click", function() {
+                    this.className = "have_off_campus_gender_selected";
+                    document.getElementById("getdata_have_gender_male").className = "";
+                    document.getElementById("getdata_have_gender_any").className = "";
+                    getdata_query["genderPreference"] = "FEMALE";
+                });
+                document.getElementById("getdata_have_gender_any").addEventListener("click", function() {
+                    this.className = "have_off_campus_gender_selected";
+                    document.getElementById("getdata_have_gender_male").className = "";
+                    document.getElementById("getdata_have_gender_female").className = "";
+                    getdata_query["genderPreference"] = null;
+                });
+
+                document.getElementById("getdata_have_roommates_1").addEventListener("click", function() {
+                    this.className = "have_off_campus_roommates_selected";
+                    document.getElementById("getdata_have_roommates_2").className = "";
+                    document.getElementById("getdata_have_roommates_3").className = "";
+                    document.getElementById("getdata_have_roommates_4").className = "";
+                    document.getElementById("getdata_have_roommates_5").className = "";
+                    getdata_query["numberOfRoommates"] = 1;
+                });
+
+                document.getElementById("getdata_have_roommates_2").addEventListener("click", function() {
+                    this.className = "have_off_campus_roommates_selected";
+                    document.getElementById("getdata_have_roommates_1").className = "";
+                    document.getElementById("getdata_have_roommates_3").className = "";
+                    document.getElementById("getdata_have_roommates_4").className = "";
+                    document.getElementById("getdata_have_roommates_5").className = "";
+                    getdata_query["numberOfRoommates"] = 2;
+                });
+
+
+                document.getElementById("getdata_have_roommates_3").addEventListener("click", function() {
+                    this.className = "have_off_campus_roommates_selected";
+                    document.getElementById("getdata_have_roommates_1").className = "";
+                    document.getElementById("getdata_have_roommates_2").className = "";
+                    document.getElementById("getdata_have_roommates_4").className = "";
+                    document.getElementById("getdata_have_roommates_5").className = "";
+                    getdata_query["numberOfRoommates"] = 3;
+                });
+
+                document.getElementById("getdata_have_roommates_4").addEventListener("click", function() {
+                    this.className = "have_off_campus_roommates_selected";
+                    document.getElementById("getdata_have_roommates_1").className = "";
+                    document.getElementById("getdata_have_roommates_2").className = "";
+                    document.getElementById("getdata_have_roommates_3").className = "";
+                    document.getElementById("getdata_have_roommates_5").className = "";
+                    getdata_query["numberOfRoommates"] = 4;
+                });
+
+                document.getElementById("getdata_have_roommates_5").addEventListener("click", function() {
+                    this.className = "have_off_campus_roommates_selected";
+                    document.getElementById("getdata_have_roommates_1").className = "";
+                    document.getElementById("getdata_have_roommates_2").className = "";
+                    document.getElementById("getdata_have_roommates_3").className = "";
+                    document.getElementById("getdata_have_roommates_4").className = "";
+                    getdata_query["numberOfRoommates"] = 5;
+                });
+
+
+
+
+                document.getElementById("getdata_have_rental_period_six_months").addEventListener("click", function() {
+                    this.className = "have_off_campus_rental_period_selected";
+                    document.getElementById("getdata_have_rental_period_nine_months").className = "";
+                    document.getElementById("getdata_have_rental_period_annual").className = "";
+                    getdata_query["rentalPeriod"] = "FALL";
+                });
+
+                document.getElementById("getdata_have_rental_period_nine_months").addEventListener("click", function() {
+                    this.className = "have_off_campus_rental_period_selected";
+                    document.getElementById("getdata_have_rental_period_six_months").className = "";
+                    document.getElementById("getdata_have_rental_period_annual").className = "";
+                    getdata_query["rentalPeriod"] = "SPRING";
+                });
+
+                document.getElementById("getdata_have_rental_period_annual").addEventListener("click", function() {
+                    this.className = "have_off_campus_rental_period_selected";
+                    document.getElementById("getdata_have_rental_period_six_months").className = "";
+                    document.getElementById("getdata_have_rental_period_nine_months").className = "";
+                    getdata_query["rentalPeriod"] = "YEAR";
+                });
+
+                document.getElementById("looking_off_campus_selection").addEventListener("click", function() {
+                    this.className = "off_campus_room_preference_selected";
+                    document.getElementById("looking_on_campus_selection").className = "";
+                    getdata_query["isOffCampus"] = true;
+                });
+                document.getElementById("looking_on_campus_selection").addEventListener("click", function() {
+                    this.className = "off_campus_room_preference_selected";
+                    document.getElementById("looking_off_campus_selection").className = "";
+                    getdata_query["isOffCampus"] = false;
+                });
+
+
+
+
+
+                // "preferenceQuestionResponses": [-1, -1, -1, -1, -1, -1] //
+                //"drinking": "ocassional", //index 5 ocassional=0, regular=1, neither=2, null=-1
+                // "smoking": "ocassional", //index 4, ocassional=0, regular=1, neither=2, null=-1
+                // "cooking": "chef", //index 3  chef=0, good_at_cooking=1, basic_level=2, can_assist=3, none=4, null=-1
+                // "hygiene": "extremely clean", //index 2 extremely_clean=0, neat=1, occassional=2, messy=3, null=-1
+                // "sleep": "random", //index 1 //random=0, early=1, regular=2, night_owl=3, vampire=4, null=-1
+                // "deit": "vegan" //index 0 //vegan=0, vegetarian=1, kosher=2, non-veg=3, none=4, null-1
+
+                document.getElementById("getdata_diet_1").addEventListener("click", function() {
+
+                    this.className = "step2_answer_option_selected";
+                    document.getElementById("getdata_diet_2").className = "";
+                    document.getElementById("getdata_diet_3").className = "";
+                    document.getElementById("getdata_diet_4").className = "";
+                    document.getElementById("getdata_diet_5").className = "";
+                    getdata_query["preferenceQuestionResponses"][0] = 0;
+                });
+
+                document.getElementById("getdata_diet_2").addEventListener("click", function() {
+                    this.className = "step2_answer_option_selected";
+                    document.getElementById("getdata_diet_1").className = "";
+                    document.getElementById("getdata_diet_3").className = "";
+                    document.getElementById("getdata_diet_4").className = "";
+                    document.getElementById("getdata_diet_5").className = "";
+                    getdata_query["preferenceQuestionResponses"][0] = 1;
+                });
+
+                document.getElementById("getdata_diet_3").addEventListener("click", function() {
+                    this.className = "step2_answer_option_selected";
+                    document.getElementById("getdata_diet_1").className = "";
+                    document.getElementById("getdata_diet_2").className = "";
+                    document.getElementById("getdata_diet_4").className = "";
+                    document.getElementById("getdata_diet_5").className = "";
+                    getdata_query["preferenceQuestionResponses"][0] = 2;
+                });
+
+                document.getElementById("getdata_diet_4").addEventListener("click", function() {
+                    this.className = "step2_answer_option_selected";
+                    document.getElementById("getdata_diet_1").className = "";
+                    document.getElementById("getdata_diet_2").className = "";
+                    document.getElementById("getdata_diet_3").className = "";
+                    document.getElementById("getdata_diet_5").className = "";
+                    getdata_query["preferenceQuestionResponses"][0] = 3;
+                });
+
+                document.getElementById("getdata_diet_5").addEventListener("click", function() {
+                    this.className = "step2_answer_option_selected";
+                    document.getElementById("getdata_diet_1").className = "";
+                    document.getElementById("getdata_diet_2").className = "";
+                    document.getElementById("getdata_diet_3").className = "";
+                    document.getElementById("getdata_diet_4").className = "";
+                    getdata_query["preferenceQuestionResponses"][0] = 4;
+                });
+
+
+
+                document.getElementById("getdata_sleep_1").addEventListener("click", function() {
+                    this.className = "step2_answer_option_selected";
+                    document.getElementById("getdata_sleep_2").className = "";
+                    document.getElementById("getdata_sleep_3").className = "";
+                    document.getElementById("getdata_sleep_4").className = "";
+                    document.getElementById("getdata_sleep_5").className = "";
+                    getdata_query["preferenceQuestionResponses"][1] = 0;
+                });
+
+                document.getElementById("getdata_sleep_2").addEventListener("click", function() {
+                    this.className = "step2_answer_option_selected";
+                    document.getElementById("getdata_sleep_1").className = "";
+                    document.getElementById("getdata_sleep_3").className = "";
+                    document.getElementById("getdata_sleep_4").className = "";
+                    document.getElementById("getdata_sleep_5").className = "";
+                    getdata_query["preferenceQuestionResponses"][1] = 1;
+                });
+
+                document.getElementById("getdata_sleep_3").addEventListener("click", function() {
+                    this.className = "step2_answer_option_selected";
+                    document.getElementById("getdata_sleep_1").className = "";
+                    document.getElementById("getdata_sleep_2").className = "";
+                    document.getElementById("getdata_sleep_4").className = "";
+                    document.getElementById("getdata_sleep_5").className = "";
+                    getdata_query["preferenceQuestionResponses"][1] = 2;
+                });
+
+                document.getElementById("getdata_sleep_4").addEventListener("click", function() {
+                    this.className = "step2_answer_option_selected";
+                    document.getElementById("getdata_sleep_2").className = "";
+                    document.getElementById("getdata_sleep_3").className = "";
+                    document.getElementById("getdata_sleep_1").className = "";
+                    document.getElementById("getdata_sleep_5").className = "";
+                    getdata_query["preferenceQuestionResponses"][1] = 3;
+                });
+
+                document.getElementById("getdata_sleep_5").addEventListener("click", function() {
+                    this.className = "step2_answer_option_selected";
+                    document.getElementById("getdata_sleep_2").className = "";
+                    document.getElementById("getdata_sleep_3").className = "";
+                    document.getElementById("getdata_sleep_4").className = "";
+                    document.getElementById("getdata_sleep_1").className = "";
+                    getdata_query["preferenceQuestionResponses"][1] = 4;
+                });
+
+
+                document.getElementById("getdata_hygiene_1").addEventListener("click", function() {
+                    this.className = "step2_answer_option_selected";
+                    document.getElementById("getdata_hygiene_2").className = "";
+                    document.getElementById("getdata_hygiene_3").className = "";
+                    document.getElementById("getdata_hygiene_4").className = "";
+                    getdata_query["preferenceQuestionResponses"][2] = 0;
+                });
+
+                document.getElementById("getdata_hygiene_2").addEventListener("click", function() {
+                    this.className = "step2_answer_option_selected";
+                    document.getElementById("getdata_hygiene_1").className = "";
+                    document.getElementById("getdata_hygiene_3").className = "";
+                    document.getElementById("getdata_hygiene_4").className = "";
+                    getdata_query["preferenceQuestionResponses"][2] = 1;
+                });
+
+                document.getElementById("getdata_hygiene_3").addEventListener("click", function() {
+                    this.className = "step2_answer_option_selected";
+                    document.getElementById("getdata_hygiene_1").className = "";
+                    document.getElementById("getdata_hygiene_2").className = "";
+                    document.getElementById("getdata_hygiene_4").className = "";
+                    getdata_query["preferenceQuestionResponses"][2] = 2;
+                });
+
+                document.getElementById("getdata_hygiene_4").addEventListener("click", function() {
+                    this.className = "step2_answer_option_selected";
+                    document.getElementById("getdata_hygiene_1").className = "";
+                    document.getElementById("getdata_hygiene_2").className = "";
+                    document.getElementById("getdata_hygiene_3").className = "";
+                    getdata_query["preferenceQuestionResponses"][2] = 3;
+                });
+
+                document.getElementById("getdata_cooking_1").addEventListener("click", function() {
+                    this.className = "step2_answer_option_selected";
+                    document.getElementById("getdata_cooking_2").className = "";
+                    document.getElementById("getdata_cooking_3").className = "";
+                    document.getElementById("getdata_cooking_4").className = "";
+                    document.getElementById("getdata_cooking_5").className = "";
+                    getdata_query["preferenceQuestionResponses"][3] = 0;
+                });
+
+                document.getElementById("getdata_cooking_2").addEventListener("click", function() {
+                    this.className = "step2_answer_option_selected";
+                    document.getElementById("getdata_cooking_1").className = "";
+                    document.getElementById("getdata_cooking_3").className = "";
+                    document.getElementById("getdata_cooking_4").className = "";
+                    document.getElementById("getdata_cooking_5").className = "";
+                    getdata_query["preferenceQuestionResponses"][3] = 1;
+                });
+
+                document.getElementById("getdata_cooking_3").addEventListener("click", function() {
+                    this.className = "step2_answer_option_selected";
+                    document.getElementById("getdata_cooking_1").className = "";
+                    document.getElementById("getdata_cooking_2").className = "";
+                    document.getElementById("getdata_cooking_4").className = "";
+                    document.getElementById("getdata_cooking_5").className = "";
+                    getdata_query["preferenceQuestionResponses"][3] = 2;
+                });
+
+                document.getElementById("getdata_cooking_4").addEventListener("click", function() {
+                    this.className = "step2_answer_option_selected";
+                    document.getElementById("getdata_cooking_1").className = "";
+                    document.getElementById("getdata_cooking_2").className = "";
+                    document.getElementById("getdata_cooking_3").className = "";
+                    document.getElementById("getdata_cooking_5").className = "";
+                    getdata_query["preferenceQuestionResponses"][3] = 3;
+                });
+
+                document.getElementById("getdata_cooking_5").addEventListener("click", function() {
+                    this.className = "step2_answer_option_selected";
+                    document.getElementById("getdata_cooking_1").className = "";
+                    document.getElementById("getdata_cooking_2").className = "";
+                    document.getElementById("getdata_cooking_3").className = "";
+                    document.getElementById("getdata_cooking_4").className = "";
+                    getdata_query["preferenceQuestionResponses"][3] = 4;
+                });
+
+                document.getElementById("getdata_smoking_1").addEventListener("click", function() {
+                    this.className = "step2_answer_option_selected";
+                    document.getElementById("getdata_smoking_2").className = "";
+                    document.getElementById("getdata_smoking_3").className = "";
+                    getdata_query["preferenceQuestionResponses"][4] = 0;
+                });
+
+                document.getElementById("getdata_smoking_2").addEventListener("click", function() {
+                    this.className = "step2_answer_option_selected";
+                    document.getElementById("getdata_smoking_1").className = "";
+                    document.getElementById("getdata_smoking_3").className = "";
+                    getdata_query["preferenceQuestionResponses"][4] = 1;
+                });
+
+                document.getElementById("getdata_smoking_3").addEventListener("click", function() {
+                    this.className = "step2_answer_option_selected";
+                    document.getElementById("getdata_smoking_1").className = "";
+                    document.getElementById("getdata_smoking_2").className = "";
+                    getdata_query["preferenceQuestionResponses"][4] = 2;
+                });
+
+                document.getElementById("getdata_drinking_1").addEventListener("click", function() {
+                    this.className = "step2_answer_option_selected";
+                    document.getElementById("getdata_drinking_2").className = "";
+                    document.getElementById("getdata_drinking_3").className = "";
+                    getdata_query["preferenceQuestionResponses"][5] = 0;
+                });
+
+                document.getElementById("getdata_drinking_2").addEventListener("click", function() {
+                    this.className = "step2_answer_option_selected";
+                    document.getElementById("getdata_drinking_1").className = "";
+                    document.getElementById("getdata_drinking_3").className = "";
+                    getdata_query["preferenceQuestionResponses"][5] = 1;
+                });
+
+                document.getElementById("getdata_drinking_3").addEventListener("click", function() {
+                    this.className = "step2_answer_option_selected";
+                    document.getElementById("getdata_drinking_1").className = "";
+                    document.getElementById("getdata_drinking_2").className = "";
+                    getdata_query["preferenceQuestionResponses"][5] = 2;
+                });
+
+
+                console.log(getdata_query);
+            };
+
+            var update_nationality = function(nationality) {
+                getdata_query["nationality"] = nationality == "--_SELECT_AN_OPTION_--" ? null : nationality;
+                console.log(getdata_query);
+            };
+            var update_major = function(major) {
+                getdata_query["major"] = major == "--_SELECT_AN_OPTION_--" ? null : major;
+                console.log(getdata_query);
+            };
+            var update_grad = function(grad) {
+                getdata_query["isGraduate"] = grad == "--_SELECT_AN_OPTION_--" ? null : grad;
+                console.log(getdata_query);
+            };
+            var update_language = function(language) {
+                getdata_query["language"] = language == "--_SELECT_AN_OPTION_--" ? null : language;
+                console.log(getdata_query);
+            };
+
+            var update_budget_min_max = function(min, max) {
+                getdata_query["budgetMin"] = min;
+                getdata_query["budgetRange"] = max - min;
+            };
+
+            var update_profile_pic = function(base64_str) {
+                getdata_query["profilePicture"] = base64_str.indexOf("data:image/jpeg;base64,") > -1 ? base64_str.split("data:image/jpeg;base64,")[1] : base64_str;
+            };
+
+            var submit_data = function() {
+                var rent = document.getElementById("have_off_campus_rent").value;
+                if (rent !== "") {
+                    getdata_query["hasRoom"] = true;
+                    getdata_query["rent"] = rent;
+                    getdata_query["distanceFromUniversity"] = document.getElementById("have_off_campus_distance").value !== "" ? parseInt(document.getElementById("have_off_campus_distance").value) : 0;
+                    getdata_query["isOffCampus"] = null;
+                } else {
+                    getdata_query["hasRoom"] = false;
+                    getdata_query["rent"] = null;
+                    getdata_query["distanceFromUniversity"] = document.getElementById("off_campus_distance").value !== "" ? parseInt(document.getElementById("off_campus_distance").value) : 0;
+
+                }
+                var xhr = new XMLHttpRequest();
+                var url = "http://18.191.158.213:8080/profile?action=update";
+                xhr.open('POST', url);
+                xhr.setRequestHeader('Content-type', 'application/JSON');
+                xhr.withCredentials = true;
+                xhr.onreadystatechange = function() {
+                    if (xhr.status == 200 & xhr.readyState == 4) {
+                        var jresp = xhr.responseText;
+                        var resp = JSON.parse(jresp);
+                        console.log(resp);
+                    }
+                };
+                var jdata = JSON.stringify(getdata_query);
+                console.log(jdata);
+                xhr.send(jdata);
+                model_obj.close();
+            };
+
+
+
+
+            return {
+                initialize: initialize,
+                update_nationality: update_nationality,
+                update_major: update_major,
+                update_grad: update_grad,
+                update_language: update_language,
+                update_budget_min_max: update_budget_min_max,
+                submit_data: submit_data,
+                update_profile_pic: update_profile_pic
+            }
+        }();
+    </script>
+
+    <div id="main_dash_body">
+        <div id="main_dash_results_container">
+            <!--  <div class="profile_card_container">
+                <div class="profile_card_picture">
+                    <img src="/imgs/dummy1.jpg" />
+                </div>
+                <div class="profile_card_details">
+                    <div class="profile_card_name">Imran Raziuddin Mohammed</div>
+                    <div class="profile_card_major">Computer Science (Grad)</div>
+                    <div class="profile_card_nationality"><span>Nationality</span><span>IN</span></div>
+                    <div class="profile_card_language"><span>Language&nbsp;</span><span>Hindi/Urdu</span></div>
+                </div>
+                <div class="profile_match_container">80%</div>
+            </div>-->
+        </div>
+        <div id="main_dash_search_container">
+            <div id="search_gender_container">
+                <div id="search_gender_title">Gender</div>
+                <div id="search_gender_options">
+                    <div id="search_gender_male">Male</div>
+                    <div id="search_gender_female">Female</div>
+                    <div id="search_gender_any" class="search_gender_selected">Any</div>
+                </div>
+            </div>
+            <div id="search_roommates_container">
+                <div id="search_roommates_title">roommates</div>
+                <div id="search_roommates_options">
+                    <div id="search_roommates_1">1</div>
+                    <div id="search_roommates_2">2</div>
+                    <div id="search_roommates_3" class="search_roommates_selected">3</div>
+                    <div id="search_roommates_4">4</div>
+                    <div id="search_roommates_5">5</div>
+                </div>
+            </div>
+            <div id="search_rental_period_container">
+                <div id="search_rental_period_title">Rental Period</div>
+                <div id="search_rental_period_options">
+                    <div id="search_rental_period_six_months">Fall</div>
+                    <div id="search_rental_period_nine_months">Spring</div>
+                    <div id="search_rental_period_annual" class="search_rental_period_selected">Full Year</div>
+                </div>
+            </div>
+            <div id="search_nationality_container" class="global_dropdown search_dropdown">
+                <div class="global_dropdown_title">Nationality</div>
+                <div class="global_dropdown_value_container" id="search_nationality_value">-- Select an option --</div>
+                <div class="global_dropdown_options" id="search_nationality_options">
+                    <!--<div class="global_dropdown_option">Algeria</div>-->
+                </div>
+            </div>
+            <div id="search_language_container" class="global_dropdown search_dropdown">
+                <div class="global_dropdown_title">Language</div>
+                <div class="global_dropdown_value_container" id="search_language_value">-- Select an option --</div>
+                <div class="global_dropdown_options" id="search_language_options">
+                    <!--<div class="global_dropdown_option">Algeria</div>-->
+                </div>
+            </div>
+            <div id="search_graduate_container" class="global_dropdown search_dropdown">
+                <div class="global_dropdown_title">Grad/Undergrad</div>
+                <div class="global_dropdown_value_container" id="search_graduate_value">-- Select an option --</div>
+                <div class="global_dropdown_options" id="search_graduate_options">
+                    <!--<div class="global_dropdown_option">Algeria</div>-->
+                </div>
+            </div>
+            <div id="search_major_container" class="global_dropdown search_dropdown">
+                <div class="global_dropdown_title">Major</div>
+                <div class="global_dropdown_value_container" id="search_major_value">-- Select an option --</div>
+                <div class="global_dropdown_options" id="search_major_options">
+                    <!--<div class="global_dropdown_option">Algeria</div>-->
+                </div>
+            </div>
+            <div id="search_budget_slider_container">
+                <div id="search_budget_title">Budget</div>
+                <div id="search_budget_slider">
+                    <div id="search_budget_min">50</div>
+                    <div id="search_budget_input_slider">
+                        <input value="50" min="50" max="5000" step="50" type="range">
+                        <input value="5000" min="50" max="5000" step="50" type="range">
+                    </div>
+                    <div id="search_budget_max">5000</div>
+                </div>
+            </div>
+            <div id="search_distance_slider_container">
+                <div id="search_distance_title">Distance</div>
+                <div id="search_distance_slider">
+                    <div id="search_distance_min">0</div>
+                    <div id="search_distance_input_slider">
+                        <input value="0" min="0" max="50" step="1" type="range">
+                        <input value="50" min="0" max="50" step="1" type="range">
+                    </div>
+                    <div id="search_distance_max">50</div>
+                </div>
+            </div>
+            <div id="search_questions_container">
+
+                <div class="search_question_container">
+                    <div class="search_question">
+                        Dietary restrictions of your roommate?
+                    </div>
+                    <div class="search_answer_options">
+                        <div id="search_diet_1" class="step2_answer_option_selected">Vegan</div>
+                        <div id="search_diet_2">Vegetarian</div>
+                        <div id="search_diet_3">Kosher</div>
+                        <div id="search_diet_4">Non-Vegetarian</div>
+                        <div id="search_diet_5">None</div>
+                    </div>
+                </div>
+                <div class="search_question_container">
+                    <div class="search_question">
+                        Sleeping routine of your roommate?
+                    </div>
+                    <div class="search_answer_options">
+                        <div id="search_sleep_1" class="search_answer_option_selected">Random</div>
+                        <div id="search_sleep_2">Early Riser [10PM - 6AM]</div>
+                        <div id="search_sleep_3">Regular [12AM - 8AM]</div>
+                        <div id="search_sleep_4">Night Owl [2AM - 10PM]</div>
+                        <div id="search_sleep_5">Vampire [6AM - 2PM]</div>
+                    </div>
+                </div>
+                <div class="search_question_container">
+                    <div class="search_question">
+                        Hygiene preference of your roommate?
+                    </div>
+                    <div class="search_answer_options">
+                        <div id="search_hygiene_1" class="search_answer_option_selected">Extremely Clean</div>
+                        <div id="search_hygiene_2">Neat</div>
+                        <div id="search_hygiene_3">Occasionally clean</div>
+                        <div id="search_hygiene_4">Messy</div>
+                    </div>
+                </div>
+                <div class="search_question_container">
+                    <div class="search_question">
+                        Cooking preference of your roommate?
+                    </div>
+                    <div class="search_answer_options">
+                        <div id="search_cooking_1" class="search_answer_option_selected">Chef</div>
+                        <div id="search_cooking_2">Good at Cooking</div>
+                        <div id="search_cooking_3">Basic level of Cooking</div>
+                        <div id="search_cooking_4">Can assist others</div>
+                        <div id="search_cooking_5">None</div>
+                    </div>
+                </div>
+                <div class="search_question_container">
+                    <div class="search_question">
+                        Smoking preference of your roommate?
+                    </div>
+                    <div class="search_answer_options">
+                        <div id="search_smoking_1" class="search_answer_option_selected">Ocassional</div>
+                        <div id="search_smoking_2">Regular</div>
+                        <div id="search_smoking_3">Neither</div>
+                    </div>
+                </div>
+                <div class="search_question_container">
+                    <div class="search_question">
+                        Drinking preference of your roommate?
+                    </div>
+                    <div class="search_answer_options">
+                        <div id="search_drinking_1" class="search_answer_option_selected">Ocassional</div>
+                        <div id="search_drinking_2">Regular</div>
+                        <div id="search_drinking_3">Neither</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="center_divider">
+            <div id="center_bar"></div>
+            <div id="center_title_left">
+                <div></div>
+                <span>FILTERS</span>
+            </div>
+            <div id="center_title_right">
+                <div></div>
+                <span>RESULTS</span>
+            </div>
+            <div id="center_search_button">
+                SEARCH
+                <div></div>
+                <div></div>
+            </div>
+        </div>
+    </div>
+    <div id="navigation_bar">
+        <div id="fad_logo"><img src="/imgs/fad_logo2.png" /></div>
+        <div id="nav_profile">
+            <div id="nav_profile_name">Imran Mohammed</div>
+            <div id="nav_profile_picture"><img src="/imgs/dummy1.jpg" /></div>
+        </div>
+    </div>
+    <div id="profile_modal_container">
+        <div id="profile_modal_blank"></div>
+        <div id="profile_modal">
+            <div id="profile_modal_header">
+                <div id="profile_modal_picture">
+                    <img id="profile_modal_picture_src" src="/imgs/dummy1.jpg">
+                </div>
+                <div id="profile_modal_name">
+                    Imran Mohammed
+                </div>
+                <!--
+                    //  birthdate: "1996-11-11",
+                distanceFromUniversity: 0,
+               // firstName: "Manan",
+              //  gender: null,
+                genderPreference: null,
+              //  graduate: true,
+                hasRoom: false,
+                hasRoommate: false,
+              //  language: "English",
+              //  lastName: "Mehta",
+              //  nationality: "India",
+                numberOfRoommates: 0,
+                offCampus: false,
+                preferenceQuestionResponses: null,
+                profilePicture: null,
+                rent: 0,
+                roomRentalPeriod: 0,
+                roomStarteDate: null,
+                roomType: null,
+                roomUtilities: null
+                -->
+                <div id="profile_modal_basic_info">
+                    <table>
+                        <tr>
+                            <td>Gender</td>
+                            <td>Age</td>
+                            <td>Nationality</td>
+                            <td>Language</td>
+                            <td>Major</td>
+                        </tr>
+                        <tr>
+                            <td id="profile_modal_gender">M</td>
+                            <td id="profile_modal_age">24</td>
+                            <td id="profile_modal_nationality">Indian</td>
+                            <td id="profile_modal_language">Hindi/Urdu</td>
+                            <td id="profile_modal_major">Computer Science (Graduate)</td>
+                        </tr>
+                    </table>
+                </div>
+                <diV id="profile_modal_edit_button">Edit</diV>
+            </div>
+            <div id="profile_modal_more_info">
+                <div class="profile_modal_tag"><span>Gender Preference</span><span id="profile_modal_gender_preference">Male</span></div>
+                <div class="profile_modal_tag"><span>Deitary Restrictions</span><span id="profile_modal_deit">Vegan</span></div>
+                <div class="profile_modal_tag"><span>Sleeping Routine</span><span id="profile_modal_sleep">Random</span></div>
+                <div class="profile_modal_tag"><span>Hygeine</span><span id="profile_modal_hygeine">Extremely Clean</span></div>
+                <div class="profile_modal_tag"><span>Cooking Style</span><span id="profile_modal_cooking">Can Assist Others</span></div>
+                <div class="profile_modal_tag"><span>Smoking</span><span id="profile_modal_smoking">Ocassional</span></div>
+                <div class="profile_modal_tag"><span>Drinking</span><span id="profile_modal_drinking">Ocassional</span></div>
+                <div class="profile_modal_tag"><span>Has A Room</span><span id="profile_modal_has_room">Yes</span></div>
+                <div class="profile_modal_tag"><span id="profile_modal_rent_title">Rent</span><span id="profile_modal_rent">1000</span></div>
+                <div class="profile_modal_tag"><span>Distance</span><span id="profile_modal_distance">5 Miles</span></div>
+            </div>
+        </div>
+    </div>
+    <div id="model_parent_container">
+        <div id="blank_model"></div>
+        <div id="model_container">
+            <div id="model_title">Let's Capture More About You</div>
+            <div id="progress_bar">
+                <div id="progress_bar1" class="progress_bar filled_box"></div>
+                <div id="progress_bar2" class="progress_bar"></div>
+                <div id="progress_bar3" class="progress_bar"></div>
+            </div>
+            <div id="steps_container" class="step1_class">
+                <div id="step1_container">
+                    <div id="profile_picture_container">
+                        <img src="/imgs/profile_picture.png" id="uploaded_profile_picture">
+                        <input type="file" id="upload_picture_button" />
+                    </div>
+
+                    <div id="major_container" class="global_dropdown">
+                        <div class="global_dropdown_title">Major</div>
+                        <div class="global_dropdown_value_container" id="major_value">-- Select an option --</div>
+                        <div class="global_dropdown_options" id="major_options">
+                            <!--<div class="global_dropdown_option">Algeria</div>-->
+                        </div>
+                    </div>
+                    <div id="graduate_container" class="global_dropdown">
+                        <div class="global_dropdown_title">Grad/Undergrad</div>
+                        <div class="global_dropdown_value_container" id="graduate_value">-- Select an option --</div>
+                        <div class="global_dropdown_options" id="graduate_options">
+                            <!--<div class="global_dropdown_option">Algeria</div>-->
+                        </div>
+                    </div>
+                    <div id="language_container" class="global_dropdown">
+                        <div class="global_dropdown_title">Language</div>
+                        <div class="global_dropdown_value_container" id="language_value">-- Select an option --</div>
+                        <div class="global_dropdown_options" id="language_options">
+                            <!--<div class="global_dropdown_option">Algeria</div>-->
+                        </div>
+                    </div>
+                    <div id="nationality_container" class="global_dropdown">
+                        <div class="global_dropdown_title">Nationality</div>
+                        <div class="global_dropdown_value_container" id="nationality_value">-- Select an option --</div>
+                        <div class="global_dropdown_options" id="nationality_options">
+                            <!--<div class="global_dropdown_option">Algeria</div>-->
+                        </div>
+                    </div>
+                </div>
+                <div id="step2_container">
+                    <div class="step2_question_container">
+                        <div class="step2_question">
+                            What are your dietary restrictions?
+                        </div>
+                        <div class="step2_answer_options">
+                            <div id="getdata_diet_1" class="step2_answer_option_selected">Vegan</div>
+                            <div id="getdata_diet_2">Vegetarian</div>
+                            <div id="getdata_diet_3">Kosher</div>
+                            <div id="getdata_diet_4">Non-Vegetarian</div>
+                            <div id="getdata_diet_5">None</div>
+                        </div>
+                    </div>
+                    <div class="step2_question_container">
+                        <div class="step2_question">
+                            When it comes to sleeping hours what do you prefer?
+                        </div>
+                        <div class="step2_answer_options">
+                            <div id="getdata_sleep_1" class="step2_answer_option_selected">Random</div>
+                            <div id="getdata_sleep_2">Early Riser [10PM - 6AM]</div>
+                            <div id="getdata_sleep_3">Regular [12AM - 8AM]</div>
+                            <div id="getdata_sleep_4">Night Owl [2AM - 10PM]</div>
+                            <div id="getdata_sleep_5">Vampire [6AM - 2PM]</div>
+                        </div>
+                    </div>
+                    <div class="step2_question_container">
+                        <div class="step2_question">
+                            How do you prefer to keep your surroundings?
+                        </div>
+                        <div class="step2_answer_options">
+                            <div id="getdata_hygiene_1" class="step2_answer_option_selected">Extremely Clean</div>
+                            <div id="getdata_hygiene_2">Neat</div>
+                            <div id="getdata_hygiene_3">Occasionally clean</div>
+                            <div id="getdata_hygiene_4">Messy</div>
+                        </div>
+                    </div>
+                    <div class="step2_question_container">
+                        <div class="step2_question">
+                            Do you have a hidden chef in you?
+                        </div>
+                        <div class="step2_answer_options">
+                            <div id="getdata_cooking_1" class="step2_answer_option_selected">Chef</div>
+                            <div id="getdata_cooking_2">Good at Cooking</div>
+                            <div id="getdata_cooking_3">Basic level of Cooking</div>
+                            <div id="getdata_cooking_4">Can assist others</div>
+                            <div id="getdata_cooking_5">None</div>
+                        </div>
+                    </div>
+                    <div class="step2_question_container">
+                        <div class="step2_question">
+                            What about smoking?
+                        </div>
+                        <div class="step2_answer_options">
+                            <div id="getdata_smoking_1" class="step2_answer_option_selected">Ocassional</div>
+                            <div id="getdata_smoking_2">Regular</div>
+                            <div id="getdata_smoking_3">Neither</div>
+                        </div>
+                    </div>
+                    <div class="step2_question_container">
+                        <div class="step2_question">
+                            What about drinking?
+                        </div>
+                        <div class="step2_answer_options">
+                            <div id="getdata_drinking_1" class="step2_answer_option_selected">Ocassional</div>
+                            <div id="getdata_drinking_2">Regular</div>
+                            <div id="getdata_drinking_3">Neither</div>
+                        </div>
+                    </div>
+                </div>
+                <div id="step3_container" class="looking_off_campus_class">
+                    <div id="step3_selector">
+                        <div id="selector_looking_off_campus" class="step3_selector_selected">Looking For A Room?</div>
+                        <div id="selector_have_off_campus">Have A Room Off-Campus?</div>
+                    </div>
+
+                    <div id="looking_off_campus_contianer">
+                        <div id="off_campus_room_preference_container">
+                            <div id="off_campus_room_preference_title">Room Preference</div>
+                            <div id="off_campus_room_preference_options">
+                                <div id="looking_off_campus_selection" class="off_campus_room_preference_selected">Off-Campus</div>
+                                <div id="looking_on_campus_selection">On-Campus</div>
+                            </div>
+                        </div>
+                        <div id="off_campus_budget_container">
+                            <div id="off_campus_budget_title">Budget</div>
+                            <div id="off_campus_budget_slider">
+                                <div id="off_campus_budget_min">50</div>
+                                <div id="off_campus_budget_input_slider">
+                                    <input value="50" min="50" max="5000" step="50" type="range">
+                                    <input value="5000" min="50" max="5000" step="50" type="range">
+                                </div>
+                                <div id="off_campus_budget_max">5000</div>
+                            </div>
+                        </div>
+                        <div id="off_campus_distance_container">
+                            <div id="off_campus_distance_title">Distance From University (miles)</div>
+                            <input id="off_campus_distance" type="number" placeholder="5" min="1" max="10000" step="1" />
+                        </div>
+                        <div id="off_campus_gender_container">
+                            <div id="off_campus_gender_title">Gender Preference</div>
+                            <div id="off_campus_gender_options">
+                                <div id="getdata_gender_male">Male</div>
+                                <div id="getdata_gender_female">Female</div>
+                                <div id="getdata_gender_any" class="off_campus_gender_selected">No Preference</div>
+                            </div>
+                        </div>
+                        <div id="off_campus_roommates_container">
+                            <div id="off_campus_roommates_title">Number of roommates</div>
+                            <div id="off_campus_roommates_options">
+                                <div id="getdata_roommates_1">1</div>
+                                <div id="getdata_roommates_2">2</div>
+                                <div id="getdata_roommates_3" class="off_campus_roommates_selected">3</div>
+                                <div id="getdata_roommates_4">4</div>
+                                <div id="getdata_roommates_5">5</div>
+                            </div>
+                        </div>
+                        <div id="off_campus_rental_period_container">
+                            <div id="off_campus_rental_period_title">Rental Period</div>
+                            <div id="off_campus_rental_period_options">
+                                <div id="getdata_rental_period_six_months">Fall</div>
+                                <div id="getdata_rental_period_nine_months">Spring</div>
+                                <div id="getdata_rental_period_annual" class="off_campus_rental_period_selected">Full Year</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="have_off_campus_container">
+                        <div id="have_off_campus_rent_container">
+                            <div id="have_off_campus_rent_title">House Rent</div>
+                            <input id="have_off_campus_rent" type="number" placeholder="1000" min="1" max="10000" step="1" />
+                        </div>
+                        <!-- <div id="have_off_campus_utility_bill_container">
+                            <div id="have_off_campus_utility_bill_title">Utility Bill (approx)</div>
+                            <input id="have_off_campus_utility_bill" type="number" placeholder="150" min="1" max="10000" step="1" />
+                        </div>-->
+                        <div id="have_off_campus_distance_container">
+                            <div id="have_off_campus_distance_title">Distance From University (miles)</div>
+                            <input id="have_off_campus_distance" type="number" placeholder="5" min="1" max="10000" step="1" />
+                        </div>
+                        <div id="have_off_campus_gender_container">
+                            <div id="have_off_campus_gender_title">Gender Preference</div>
+                            <div id="have_off_campus_gender_options">
+                                <div id="getdata_have_gender_male">Male</div>
+                                <div id="getdata_have_gender_female">Female</div>
+                                <div id="getdata_have_gender_any" class="have_off_campus_gender_selected">No Preference</div>
+                            </div>
+                        </div>
+                        <div id="have_off_campus_roommates_container">
+                            <div id="have_off_campus_roommates_title">Number of roommates</div>
+                            <div id="have_off_campus_roommates_options">
+                                <div id="getdata_have_roommates_1">1</div>
+                                <div id="getdata_have_roommates_2">2</div>
+                                <div id="getdata_have_roommates_3" class="have_off_campus_roommates_selected">3</div>
+                                <div id="getdata_have_roommates_4">4</div>
+                                <div id="getdata_have_roommates_5">5</div>
+                            </div>
+                        </div>
+                        <div id="have_off_campus_rental_period_container">
+                            <div id="have_off_campus_rental_period_title">Rental Period</div>
+                            <div id="have_off_campus_rental_period_options">
+                                <div id="getdata_have_rental_period_six_months">Fall</div>
+                                <div id="getdata_have_rental_period_nine_months">Spring</div>
+                                <div id="getdata_have_rental_period_annual" class="have_off_campus_rental_period_selected">Full Year</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="submit_step">NEXT</div>
+            <div id="previous_step">PREVIOUS</div>
+        </div>
+    </div>
+
+    <script src="/js/languages_obj.js"></script>
+    <script src="/js/countries_obj.js"></script>
+    <script src="/js/search_languages_obj.js"></script>
+    <script src="/js/search_countries_obj.js"></script>
+
+</body>
+
+</html>
