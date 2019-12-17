@@ -1,10 +1,22 @@
-﻿# Welcome to my personal repo!
+﻿
+# Welcome to my personal repo!
 
 Hi! I'm Imran Mohammed a software developer with 3 years of experience in leading teams and delivering appropriate technology solutions for desktop and mobile products. In this repository I will be sharing some of my personal works thus far. 
 
- 1. Drawing Program (Console Based)
- 2. 2048 Game (JS)
- 3. Video Player (WebSpeechKit API)
+ 1. Travel Planner (MEAN Stack) CSI518 Term Project
+ 2. Drawing Program (Console Based)
+ 3. 2048 Game (JS)
+ 4. Video Player (WebSpeechKit API)
+
+# Travel Planner (MEAN Stack) CSI518 Term Project
+
+This software system is a web-based platform for users who would like to plan, book and manage their travel experiences. This system is designed to make it easy for users to search for flights and hotels associated with their destination as well as browse and book pre-made packages by travel agents.
+
+This application allows travel agents to build their own packages consisting of flights, hotels, price and number of days this trip would last.
+
+The application uses Google OAuth Sign-in, with Database hosted on MongoDB Atlas and Backend written in Express. Frontend of the application is written in Angular JS.
+
+Hosted Link: [http://node-imran.appspot.com/](http://node-imran.appspot.com/)
 
 # Drawing Program (Console Based)
 

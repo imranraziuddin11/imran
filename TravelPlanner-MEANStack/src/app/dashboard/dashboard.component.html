@@ -1,0 +1,159 @@
+<div id="navigation_toggles">
+    <div class="navigation_toggle" (click)="changeNav('Flights')" [ngClass]="{'navigation_active': nav == 'Flights'}">Flights</div>
+    <div class="navigation_toggle" (click)="changeNav('Hotels')" [ngClass]="{'navigation_active': nav == 'Hotels'}">Hotels</div>
+    <div class="navigation_toggle" (click)="changeNav('Packages')" [ngClass]="{'navigation_active': nav == 'Packages'}">Packages</div>
+    <div class="navigation_toggle" (click)="changeNav('Booking')" [ngClass]="{'navigation_active': nav == 'Booking'}">Bookings</div>
+</div>
+<div id="dashboard_body">
+    <div class="dashboard_body_component" id="flights_body_component" [ngClass]="{'component_hide': nav != 'Flights'}">
+        <form (ngSubmit)="onFlightSubmit()" id="flight_form">
+            <div id="flight_origin_search_container">
+                <img src="/assets/origin.png">
+                <input type="text" id="flight_origin_search" name="origin" [(ngModel)]=flight_origin placeholder="Origin Code">
+                <div class="note">Sample IATA CODE of Origins JFK, MDW, DEL, DFW</div>
+            </div>
+            <div id="flight_destination_search_container">
+                <img src="/assets/destination.png">
+                <input type="text" id="flight_destination_search" name="destination" [(ngModel)]=flight_destination placeholder="Destination Code">
+                <div class="note">Sample IATA CODE of Destinations JFK, MDW, DEL, DFW</div>
+            </div>
+            <div id="flight_depart_date_search_container">
+                <img src="/assets/date.png">
+                <input type="text" id="flight_depart_date_search" name="depart_date" [(ngModel)]=flight_depart_date placeholder="Depart Date">
+                <div class="note">Format YYYY-MM</div>
+            </div>
+            <div id="flight_return_date_search_container">
+                <img src="/assets/date.png">
+                <input type="text" id="flight_return_date_search" name="return_date" [(ngModel)]=flight_return_date placeholder="Return Date">
+                <div class="note">Format YYYY-MM</div>
+            </div>
+            <input type="submit" id="flight_search_submit" value="Search" />
+        </form>
+        {{errorMessage}}
+        <div id="flight_results">
+            <div *ngFor="let flight of flight_results" class="flight_result_card">
+                <div><span>From: </span><span>{{flight.origin}}</span></div>
+                <div><span>To: </span><span>{{flight.destination}}</span></div>
+                <div><span>Airline: </span><span>{{flight.airline}}</span></div>
+                <div><span>Departure Date: </span><span>{{flight.departure_at}}</span></div>
+                <div><span>Return Date: </span><span>{{flight.return_at}}</span></div>
+                <div><span>Price: </span><span>{{flight.price}} USD</span></div>
+                <input class="flight_result_card_add" type="button" (click)="addFlightToPackage(flight)" value="Add Flight To Package">
+            </div>
+
+        </div>
+    </div>
+    <div class="dashboard_body_component" id="hotels_body_component" [ngClass]="{'component_hide': nav != 'Hotels'}">
+        <form (ngSubmit)="onHotelsSubmit()" id="hotel_search_form">
+            <input type="text" id="hotel_search_input" name="search" class="col-sm-4" [(ngModel)]=searchHotelValue placeholder="Search By Location" />
+            <input type="submit" id="hotel_search_submit" value="SUBMIT" />
+        </form>
+        <div id="results_container">
+            {{errorHotelMessage}}
+            <div *ngFor="let hotel of hotels; let i = index" class="flight_result_card">
+                <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=200&photoreference={{hotel.photos[0].photo_reference}}&key=AIzaSyBwzXINKC7HTfJ4Msq9xMT0ssgsMX0sbPU" alt="hotel_photo" />
+                <div><span>Name: </span><span>{{hotel.name}}</span></div>
+                <div><span>Address: </span><span>{{hotel.formatted_address}}</span></div>
+                <div><span>Rating: </span><span>{{hotel.rating}} / 5.0</span></div>
+                <input type="button" class="flight_result_card_add" value="Add Hotel To Package" (click)="addHotelToPackage(hotel)" />
+
+            </div>
+        </div>
+    </div>
+    <div class="dashboard_body_component" [ngClass]="{'component_hide': nav != 'Packages'}">
+        <div *ngFor="let package of packages; let i = index">
+            <div [ngClass]="{'component_hide': package.type != 'Travel Agent'}" class="flight_result_card">
+                <div><span>Package ID: </span><span>{{package.package_id}}</span> <span [ngClass]="{'component_hide': package.booking_ids.length == 0 || package.booking_ids.length == 1 }"> - Popular</span> </div>
+                <div>
+                    <div>Flight Details</div>
+                    <div *ngFor="let flight of package.flights; let i = index" class="flight_result_card">
+                        <div><span>From: </span><span>{{flight.origin}}</span></div>
+                        <div><span>To: </span><span>{{flight.destination}}</span></div>
+                        <div><span>Airline: </span><span>{{flight.airline}}</span></div>
+                        <div><span>Departure Date: </span><span>{{flight.departure_at}}</span></div>
+                        <div><span>Return Date: </span><span>{{flight.return_at}}</span></div>
+                        <div><span>Price: </span><span>{{flight.price}} USD</span></div>
+                    </div>
+                </div>
+                <div>
+                    <div>Hotel Details</div>
+                    <div *ngFor="let hotel of package.hotels; let i = index" class="flight_result_card">
+                        <div><span>Name: </span><span>{{hotel.name}}</span></div>
+                        <div><span>Address: </span><span>{{hotel.formatted_address}}</span></div>
+                        <div><span>Rating: </span><span>{{hotel.rating}} / 5.0</span></div>
+                    </div>
+                </div>
+                <input type="button" class="your_package_build" value="Book Package" (click)="bookPackage(i)" [ngClass]="{'component_hide': userData.data.type == 'Travel Agent'}" />
+            </div>
+        </div>
+    </div>
+    <div class="dashboard_body_component" [ngClass]="{'component_hide': nav != 'Booking'}">
+        <div *ngFor="let package of packages; let i = index" [ngClass]="{'component_hide': userData.data.type == 'Travel Agent'}">
+            <div [ngClass]="{'component_hide': package.booking_ids.indexOf(userData.data.id) == -1}" class="flight_result_card">
+                <div>User Booking</div>
+                <div><span>Package ID: </span><span>{{package.package_id}}</span></div>
+                <div><span>Booking User ID: </span><span>{{userData.data.id}}</span></div>
+            </div>
+        </div>
+        <div *ngFor="let package of packages; let i = index" [ngClass]="{'component_hide': userData.data.type == 'User'}">
+            <div [ngClass]="{'component_hide': (package.userID != userData.data.id || package.booking_ids.length == 0)}" class="flight_result_card">
+                <div>Travel Agent Booking</div>
+                <div><span>Package ID: </span><span>{{package.package_id}}</span></div>
+                <div *ngFor="let booking_id of package.booking_ids">
+                    <div><span>Booking User ID: </span><span>{{booking_id}}</span></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="add_to_package_component" [ngClass]="{'component_hide': (nav == 'Packages' || nav == 'Booking' || addToPackageHide == true)}">
+        <div id="your_package_title">Your Package</div>
+        <div id="your_package_message" *ngIf="(yourPackage.flights.length == 0 && yourPackage.hotels.length == 0)">
+            Select flights & hotels to start building your package!
+        </div>
+        <div id="your_package_flight_details" *ngIf="yourPackage.flights.length > 0">
+            Flight Details
+            <div *ngFor="let flight of yourPackage.flights; let i = index" class="flight_result_card">
+                <div><span>From: </span><span>{{flight.origin}}</span></div>
+                <div><span>To: </span><span>{{flight.destination}}</span></div>
+                <div><span>Airline: </span><span>{{flight.airline}}</span></div>
+                <div><span>Departure Date: </span><span>{{flight.departure_at}}</span></div>
+                <div><span>Return Date: </span><span>{{flight.return_at}}</span></div>
+                <div><span>Price: </span><span>{{flight.price}} USD</span></div>
+                <input type="button" class="your_package_flight_details_remove" (click)="removeFlightFromPackage(i)" value="Remove flight">
+            </div>
+        </div>
+        <div id="your_package_hotel_details" *ngIf="yourPackage.hotels.length > 0">
+            Hotel Details
+            <div *ngFor="let hotel of yourPackage.hotels; let i = index" class="flight_result_card">
+                <div><span>Name: </span><span>{{hotel.name}}</span></div>
+                <div><span>Address: </span><span>{{hotel.formatted_address}}</span></div>
+                <div><span>Rating: </span><span>{{hotel.rating}} / 5.0</span></div>
+                <input type="button" class="your_package_hotel_details_remove" (click)="removeHotelFromPackage(i)" value="Remove Hotel">
+            </div>
+        </div>
+        <input type="button" class="your_package_build" value='{{userData.data.type == "User"? "Confirm Booking" : "Build Package"}}' (click)="onSubmitPackage()" />
+    </div>
+</div>
+<div id="dashboard_navigation_bar">
+    <div id="project_title">Travel Planner</div>
+    <div id="project_logo"><img src="assets/background.jpg" /></div>
+    <div id="nav_profile">
+        <div id="nav_profile_name">{{userData.data.name}}</div>
+        <div id="nav_profile_picture"><img src="{{userData.data.picture}}" /></div>
+    </div>
+    <div id="user_type_tag" (click)="openSwitchUserModal()">{{ userData.data.type}}</div>
+    <div id="logout" (click)="logoutUser()">Sign out</div>
+</div>
+<div id="switch_user_modal_container" [ngClass]="{'component_hide': switch_modal == false}">
+    <div id="switch_user_modal_blank" (click)="closeSwitchUserModal()"></div>
+    <div id="switch_user_modal">
+        <table>
+            <tr>
+                <td> Place a request to swtich from {{userData.data.type}} to {{userData.data.type == "User"? "Travel Agent" : "User"}}
+
+                    <div id="switch_user_submit" (click)="placeSwitchUserRequest()">Submit</div>
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>

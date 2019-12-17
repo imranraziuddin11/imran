@@ -1,0 +1,44 @@
+<div id="admin_body">
+    <table>
+        <tr>
+            <td>User ID</td>
+            <td>User Name</td>
+            <td>Current Type</td>
+            <td>Action</td>
+        </tr>
+        <tr *ngFor="let user of requests; let i = index">
+            <td>{{user.id}}</td>
+            <td>{{user.name}}</td>
+            <td>{{user.type}}</td>
+            <td><input type="button" value="Switch User" (click)="processUserRequest(i)" /></td>
+        </tr>
+    </table>
+
+    <table>
+        <tr>
+            <td>Package ID</td>
+            <td>User Type</td>
+            <td>Origin</td>
+            <td>Destination</td>
+            <td>Action</td>
+        </tr>
+        <tr *ngFor="let package of packages; let i = index" [ngClass]="{'component_hide': package.type != 'Travel Agent'}">
+            <td>{{package.package_id}}</td>
+            <td>{{package.type}}</td>
+            <td>{{package.flights[0].origin}}</td>
+            <td>{{package.flights[0].destination}}</td>
+            <td><input type="button" value="Remove Package" (click)="processPackageRemove(i)" /></td>
+        </tr>
+    </table>
+</div>
+
+<div id="dashboard_navigation_bar">
+    <div id="project_title">Travel Planner</div>
+    <div id="project_logo"><img src="assets/background.jpg" /></div>
+    <div id="nav_profile">
+        <div id="nav_profile_name">{{userData.data.name}}</div>
+        <div id="nav_profile_picture"><img src="{{userData.data.picture}}" /></div>
+    </div>
+    <div id="user_type_tag">{{ userData.data.type}}</div>
+    <div id="logout" (click)="logoutUser()">Sign out</div>
+</div>
